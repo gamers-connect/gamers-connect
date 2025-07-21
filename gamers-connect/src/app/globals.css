@@ -1,0 +1,219 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Game Connect - Custom Styles */
+
+/* Animation Classes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Landing Page Styles */
+.landing-hero {
+  background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #000000 100%);
+  min-height: 100vh;
+}
+
+/* Form Elements */
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+/* Button Styles */
+.btn-primary {
+  @apply bg-black text-white rounded-lg transition-colors hover:bg-gray-800;
+}
+
+.btn-secondary {
+  @apply border border-black text-black bg-transparent rounded-lg transition-colors hover:bg-gray-50;
+}
+
+/* Card Styles */
+.game-card {
+  @apply bg-white rounded-xl shadow-lg transition-shadow hover:shadow-xl;
+}
+
+/* Status Indicators */
+.status-online {
+  @apply bg-gray-100 text-gray-800;
+}
+
+.status-away {
+  @apply bg-gray-300 text-gray-700;
+}
+
+/* Event Type Badges */
+.event-tournament {
+  @apply bg-gray-800 text-white;
+}
+
+.event-meetup {
+  @apply bg-gray-600 text-white;
+}
+
+.event-contest {
+  @apply bg-gray-700 text-white;
+}
+
+.event-scrimmage {
+  @apply bg-gray-500 text-white;
+}
+
+/* Navigation Styles */
+.nav-button {
+  @apply transition-all hover:bg-gray-100;
+}
+
+.nav-button.active {
+  @apply bg-gray-200 text-black;
+}
+
+/* Profile Styles */
+.profile-header {
+  @apply bg-gradient-to-r from-gray-800 to-black;
+}
+
+.profile-avatar {
+  @apply w-24 h-24 bg-white rounded-full flex items-center justify-center text-4xl;
+}
+
+/* Game Tags */
+.tag-games {
+  @apply bg-gray-100 text-gray-800;
+}
+
+.tag-platforms {
+  @apply bg-gray-200 text-gray-800;
+}
+
+.tag-playstyle {
+  @apply bg-gray-300 text-gray-800;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  @apply relative inline-block w-12 h-6 rounded-full transition-colors cursor-pointer;
+}
+
+.toggle-switch.active {
+  @apply bg-black;
+}
+
+.toggle-switch.inactive {
+  @apply bg-gray-300;
+}
+
+.toggle-thumb {
+  @apply absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform;
+}
+
+.toggle-thumb.active {
+  @apply translate-x-6;
+}
+
+.toggle-thumb.inactive {
+  @apply translate-x-0.5;
+}
+
+/* Border Accent */
+.border-left-accent {
+  @apply border-l-4 border-black;
+}
+
+/* Notification Panel */
+.notification-panel {
+  @apply fixed top-16 right-4 bg-white rounded-lg shadow-lg p-4 w-80 z-50;
+}
+
+.notification-item {
+  @apply p-2 rounded mb-2;
+}
+
+.notification-item:nth-child(1) {
+  @apply bg-gray-50;
+}
+
+.notification-item:nth-child(2) {
+  @apply bg-gray-100;
+}
+
+.notification-item:nth-child(3) {
+  @apply bg-gray-200;
+}
+
+/* Notification Badge */
+.notification-badge {
+  @apply absolute -top-1 -right-1 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .notification-panel {
+    @apply w-[calc(100vw-2rem)] right-4 left-4;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-600;
+}
+
+/* Focus States */
+.form-select:focus,
+input:focus,
+textarea:focus {
+  @apply outline-none ring-2 ring-black ring-opacity-50;
+}
+
+/* Hover Effects */
+.hover-lift {
+  @apply transition-transform hover:scale-105;
+}
+
+.hover-shadow {
+  @apply transition-shadow hover:shadow-lg;
+}
