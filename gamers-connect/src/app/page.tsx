@@ -5,7 +5,7 @@ import { Gamepad2, Users, Calendar, Trophy, Plus, MessageCircle } from 'lucide-r
 import { Navigation } from '../components/Navigation';
 import { PlayerCard } from '../components/PlayerCard';
 //import { EventCard } from '../components/EventCard';
-//import { FilterBar } from '../components/FilterBar';
+import { FilterBar } from '../components/FilterBar';
 //import { QuickActions } from '../components/QuickActions';
 //import { NotificationPanel } from '../components/NotificationPanel';
 
