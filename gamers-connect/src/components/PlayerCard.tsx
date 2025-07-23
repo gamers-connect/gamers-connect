@@ -20,7 +20,7 @@ interface PlayerCardProps {
   isDetailed?: boolean;
 }
 
-export const PlayerCard: React.FC<PlayerCardProps> = ({ 
+const PlayerCard: React.FC<PlayerCardProps> = ({ 
   player, 
   showRating = false, 
   isDetailed = false 
@@ -101,3 +101,5 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({
     </div>
   );
 };
+
+export default PlayerCard;
