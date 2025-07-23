@@ -16,7 +16,7 @@ interface FilterBarProps {
   onSearch: () => void;
 }
 
-export const FilterBar: React.FC<FilterBarProps> = ({ 
+const FilterBar: React.FC<FilterBarProps> = ({ 
   games, 
   platforms, 
   playstyles, 
@@ -81,3 +81,5 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     </div>
   </div>
 );
+
+export default FilterBar;
