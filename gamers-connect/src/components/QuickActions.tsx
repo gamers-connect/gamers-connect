@@ -7,17 +7,17 @@ interface QuickActionsProps {
   onFindPlayers: () => void;
 }
 
-export const QuickActions: React.FC<QuickActionsProps> = ({ onFindPlayers }) => (
-  <div className="bg-white rounded-xl shadow-lg p-6">
-    <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-    <div className="space-y-3">
-      <button className="w-full bg-black text-white flex items-center justify-center space-x-2 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+const QuickActions: React.FC<QuickActionsProps> = ({ onFindPlayers }) => (
+  <div className="quick-actions-card">
+    <h3 className="quick-actions-title">Quick Actions</h3>
+    <div className="quick-actions-list">
+      <button className="quick-action-btn quick-action-primary">
         <Plus className="h-4 w-4" />
         <span>Create Session</span>
       </button>
       <button 
         onClick={onFindPlayers}
-        className="w-full border border-black text-black flex items-center justify-center space-x-2 py-3 rounded-lg hover:bg-gray-50 transition-colors"
+        className="quick-action-btn quick-action-secondary"
       >
         <Search className="h-4 w-4" />
         <span>Find Players</span>
@@ -25,3 +25,5 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ onFindPlayers }) => 
     </div>
   </div>
 );
+
+export default QuickActions;

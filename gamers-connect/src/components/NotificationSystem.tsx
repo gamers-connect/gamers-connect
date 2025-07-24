@@ -22,7 +22,7 @@ interface NotificationSettings {
   emailNotifications: boolean;
 }
 
-export const NotificationSystem: React.FC = () => {
+const NotificationSystem: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([
@@ -74,15 +74,15 @@ export const NotificationSystem: React.FC = () => {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'player_match':
-        return <Users className="h-5 w-5 text-blue-600" />;
+        return <Users className="notification-type-icon icon-blue" />;
       case 'event':
-        return <Calendar className="h-5 w-5 text-purple-600" />;
+        return <Calendar className="notification-type-icon icon-purple" />;
       case 'session':
-        return <MessageCircle className="h-5 w-5 text-green-600" />;
+        return <MessageCircle className="notification-type-icon icon-green" />;
       case 'achievement':
-        return <Trophy className="h-5 w-5 text-yellow-600" />;
+        return <Trophy className="notification-type-icon icon-yellow" />;
       default:
-        return <Bell className="h-5 w-5 text-gray-600" />;
+        return <Bell className="notification-type-icon icon-gray" />;
     }
   };
 
@@ -111,11 +111,11 @@ export const NotificationSystem: React.FC = () => {
   const NotificationBell = () => (
     <button
       onClick={() => setIsOpen(!isOpen)}
-      className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+      className="notification-bell"
     >
-      <Bell className="h-6 w-6" />
+      <Bell className="bell-icon" />
       {unreadCount > 0 && (
-        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+        <span className="notification-badge">
           {unreadCount > 9 ? '9+' : unreadCount}
         </span>
       )}
@@ -123,30 +123,30 @@ export const NotificationSystem: React.FC = () => {
   );
 
   const NotificationPanel = () => (
-    <div className="fixed top-16 right-4 bg-white rounded-xl shadow-2xl border w-96 max-h-[600px] z-50 overflow-hidden">
-      <div className="p-4 border-b bg-gray-50">
-        <div className="flex justify-between items-center">
-          <h3 className="font-semibold text-lg">Notifications</h3>
-          <div className="flex items-center space-x-2">
+    <div className="notification-dropdown">
+      <div className="notification-header">
+        <div className="notification-header-content">
+          <h3 className="notification-panel-title">Notifications</h3>
+          <div className="notification-controls">
             <button
               onClick={() => setShowSettings(!showSettings)}
-              className="p-1 hover:bg-gray-200 rounded"
+              className="control-btn"
               title="Notification Settings"
             >
-              <Settings className="h-4 w-4" />
+              <Settings className="control-icon" />
             </button>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1 hover:bg-gray-200 rounded"
+              className="control-btn"
             >
-              <X className="h-4 w-4" />
+              <X className="control-icon" />
             </button>
           </div>
         </div>
         {unreadCount > 0 && (
           <button
             onClick={markAllAsRead}
-            className="text-sm text-blue-600 hover:text-blue-800 mt-2"
+            className="mark-all-read-btn"
           >
             Mark all as read
           </button>
@@ -156,31 +156,27 @@ export const NotificationSystem: React.FC = () => {
       {showSettings ? (
         <NotificationSettings />
       ) : (
-        <div className="max-h-96 overflow-y-auto">
+        <div className="notification-list-container">
           {notifications.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              <Bell className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <div className="empty-notifications">
+              <Bell className="empty-icon" />
               <p>No notifications yet</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="notification-list">
               {notifications.map(notification => (
                 <div
                   key={notification.id}
-                  className={`p-4 hover:bg-gray-50 cursor-pointer ${
-                    !notification.isRead ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-                  }`}
+                  className={`notification-item ${!notification.isRead ? 'notification-unread' : ''}`}
                   onClick={() => markAsRead(notification.id)}
                 >
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 mt-1">
+                  <div className="notification-content">
+                    <div className="notification-icon-container">
                       {getNotificationIcon(notification.type)}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-start">
-                        <h4 className={`text-sm font-medium ${
-                          !notification.isRead ? 'text-gray-900' : 'text-gray-700'
-                        }`}>
+                    <div className="notification-body">
+                      <div className="notification-title-row">
+                        <h4 className={`notification-title ${!notification.isRead ? 'title-unread' : 'title-read'}`}>
                           {notification.title}
                         </h4>
                         <button
@@ -188,15 +184,15 @@ export const NotificationSystem: React.FC = () => {
                             e.stopPropagation();
                             deleteNotification(notification.id);
                           }}
-                          className="p-1 hover:bg-gray-200 rounded opacity-0 group-hover:opacity-100"
+                          className="delete-notification-btn"
                         >
-                          <X className="h-3 w-3" />
+                          <X className="delete-icon" />
                         </button>
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="notification-message">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="notification-timestamp">
                         {notification.timestamp}
                       </p>
                     </div>
@@ -211,22 +207,22 @@ export const NotificationSystem: React.FC = () => {
   );
 
   const NotificationSettings = () => (
-    <div className="p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h4 className="font-medium">Notification Settings</h4>
+    <div className="settings-panel">
+      <div className="settings-header">
+        <h4 className="settings-title">Notification Settings</h4>
         <button
           onClick={() => setShowSettings(false)}
-          className="text-sm text-blue-600 hover:text-blue-800"
+          className="back-btn"
         >
           Back
         </button>
       </div>
       
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Users className="h-4 w-4 text-blue-600" />
-            <span className="text-sm">Player Matches</span>
+      <div className="settings-list">
+        <div className="setting-item">
+          <div className="setting-label">
+            <Users className="setting-icon icon-blue" />
+            <span className="setting-text">Player Matches</span>
           </div>
           <ToggleSwitch
             enabled={settings.playerMatches}
@@ -234,10 +230,10 @@ export const NotificationSystem: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Calendar className="h-4 w-4 text-purple-600" />
-            <span className="text-sm">New Events</span>
+        <div className="setting-item">
+          <div className="setting-label">
+            <Calendar className="setting-icon icon-purple" />
+            <span className="setting-text">New Events</span>
           </div>
           <ToggleSwitch
             enabled={settings.newEvents}
@@ -245,10 +241,10 @@ export const NotificationSystem: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <MessageCircle className="h-4 w-4 text-green-600" />
-            <span className="text-sm">Session Invites</span>
+        <div className="setting-item">
+          <div className="setting-label">
+            <MessageCircle className="setting-icon icon-green" />
+            <span className="setting-text">Session Invites</span>
           </div>
           <ToggleSwitch
             enabled={settings.sessionInvites}
@@ -256,10 +252,10 @@ export const NotificationSystem: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <MessageCircle className="h-4 w-4 text-gray-600" />
-            <span className="text-sm">Messages</span>
+        <div className="setting-item">
+          <div className="setting-label">
+            <MessageCircle className="setting-icon icon-gray" />
+            <span className="setting-text">Messages</span>
           </div>
           <ToggleSwitch
             enabled={settings.messages}
@@ -267,10 +263,10 @@ export const NotificationSystem: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Trophy className="h-4 w-4 text-yellow-600" />
-            <span className="text-sm">Achievements</span>
+        <div className="setting-item">
+          <div className="setting-label">
+            <Trophy className="setting-icon icon-yellow" />
+            <span className="setting-text">Achievements</span>
           </div>
           <ToggleSwitch
             enabled={settings.achievements}
@@ -278,12 +274,12 @@ export const NotificationSystem: React.FC = () => {
           />
         </div>
 
-        <hr className="my-4" />
+        <hr className="settings-divider" />
 
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-sm font-medium">Email Notifications</span>
-            <p className="text-xs text-gray-500">Receive notifications via email</p>
+        <div className="setting-item">
+          <div className="email-setting">
+            <span className="email-title">Email Notifications</span>
+            <p className="email-description">Receive notifications via email</p>
           </div>
           <ToggleSwitch
             enabled={settings.emailNotifications}
@@ -300,14 +296,10 @@ export const NotificationSystem: React.FC = () => {
   }) => (
     <button
       onClick={() => onChange(!enabled)}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-        enabled ? 'bg-black' : 'bg-gray-300'
-      }`}
+      className={`toggle-switch ${enabled ? 'toggle-enabled' : 'toggle-disabled'}`}
     >
       <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-          enabled ? 'translate-x-6' : 'translate-x-1'
-        }`}
+        className={`toggle-handle ${enabled ? 'handle-enabled' : 'handle-disabled'}`}
       />
     </button>
   );
@@ -327,7 +319,7 @@ export const NotificationSystem: React.FC = () => {
   }, [isOpen]);
 
   return (
-    <div className="relative">
+    <div className="notification-system">
       <NotificationBell />
       {isOpen && (
         <div className="notification-panel">
@@ -337,3 +329,5 @@ export const NotificationSystem: React.FC = () => {
     </div>
   );
 };
+
+export default NotificationSystem;

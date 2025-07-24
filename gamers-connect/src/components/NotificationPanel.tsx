@@ -10,12 +10,12 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ show }) => {
   if (!show) return null;
 
   return (
-    <div className="fixed top-16 right-4 bg-white rounded-lg shadow-lg p-4 w-80 z-50 animate-fade-in">
-      <h3 className="font-semibold mb-3">Notifications</h3>
-      <div className="space-y-2 text-sm">
-        <div className="p-2 bg-gray-50 rounded">New player match found!</div>
-        <div className="p-2 bg-gray-100 rounded">Valorant tournament starts tomorrow</div>
-        <div className="p-2 bg-gray-200 rounded">Your gaming session is starting soon</div>
+    <div className="notification-panel">
+      <h3 className="notification-title">Notifications</h3>
+      <div className="notification-list">
+        <div className="notification-item notification-item-new">New player match found!</div>
+        <div className="notification-item notification-item-recent">Valorant tournament starts tomorrow</div>
+        <div className="notification-item notification-item-old">Your gaming session is starting soon</div>
       </div>
     </div>
   );

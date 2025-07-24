@@ -28,14 +28,14 @@ const FilterBar: React.FC<FilterBarProps> = ({
   onPlaystyleChange,
   onSearch
 }) => (
-  <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-    <div className="grid md:grid-cols-4 gap-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Game</label>
+  <div className="filter-bar">
+    <div className="filter-grid">
+      <div className="filter-group">
+        <label className="filter-label">Game</label>
         <select 
           value={searchGame}
           onChange={(e) => onGameChange(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+          className="filter-select"
         >
           <option value="">All Games</option>
           {games.map(game => (
@@ -43,12 +43,12 @@ const FilterBar: React.FC<FilterBarProps> = ({
           ))}
         </select>
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Platform</label>
+      <div className="filter-group">
+        <label className="filter-label">Platform</label>
         <select 
           value={searchPlatform}
           onChange={(e) => onPlatformChange(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+          className="filter-select"
         >
           <option value="">All Platforms</option>
           {platforms.map(platform => (
@@ -56,12 +56,12 @@ const FilterBar: React.FC<FilterBarProps> = ({
           ))}
         </select>
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Playstyle</label>
+      <div className="filter-group">
+        <label className="filter-label">Playstyle</label>
         <select 
           value={searchPlaystyle}
           onChange={(e) => onPlaystyleChange(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+          className="filter-select"
         >
           <option value="">All Playstyles</option>
           {playstyles.map(style => (
@@ -69,10 +69,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
           ))}
         </select>
       </div>
-      <div className="flex items-end">
+      <div className="filter-button-container">
         <button 
           onClick={onSearch}
-          className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2"
+          className="filter-search-btn"
         >
           <Search className="h-4 w-4" />
           <span>Search</span>

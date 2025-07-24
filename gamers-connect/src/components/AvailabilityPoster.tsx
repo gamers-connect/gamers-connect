@@ -44,32 +44,68 @@ const AvailabilityPoster: React.FC<AvailabilityPosterProps> = ({ onPostAvailabil
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-gray-400 hover:bg-gray-100 transition-colors text-center"
+        style={{
+          width: '100%',
+          backgroundColor: '#f9fafb',
+          border: '2px dashed #d1d5db',
+          borderRadius: '0.5rem',
+          padding: '1.5rem',
+          textAlign: 'center',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = '#9ca3af';
+          e.currentTarget.style.backgroundColor = '#f3f4f6';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = '#d1d5db';
+          e.currentTarget.style.backgroundColor = '#f9fafb';
+        }}
       >
-        <Plus className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-        <p className="text-gray-600 font-medium">Post Your Availability</p>
-        <p className="text-sm text-gray-500">Let others know you are looking to play</p>
+        <Plus style={{ height: '2rem', width: '2rem', margin: '0 auto 0.5rem', color: '#9ca3af' }} />
+        <p style={{ color: '#4b5563', fontWeight: '500' }}>Post Your Availability</p>
+        <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>Let others know you are looking to play</p>
       </button>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-black">
-      <h3 className="text-lg font-semibold mb-4 flex items-center">
-        <Gamepad2 className="h-5 w-5 mr-2" />
+    <div className="card card-padding" style={{ border: '2px solid black' }}>
+      <h3 style={{ 
+        fontSize: '1.125rem', 
+        fontWeight: '600', 
+        marginBottom: '1rem',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem'
+      }}>
+        <Gamepad2 style={{ height: '1.25rem', width: '1.25rem' }} />
         Post Your Gaming Availability
       </h3>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label style={{ 
+            display: 'block', 
+            fontSize: '0.875rem', 
+            fontWeight: '500',
+            color: '#374151',
+            marginBottom: '0.5rem'
+          }}>
             What game are you looking to play?
           </label>
           <select
             required
             value={postData.game}
             onChange={(e) => setPostData({ ...postData, game: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+            style={{
+              width: '100%',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.875rem'
+            }}
           >
             <option value="">Select a game</option>
             {games.map(game => (
@@ -79,13 +115,25 @@ const AvailabilityPoster: React.FC<AvailabilityPosterProps> = ({ onPostAvailabil
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label style={{ 
+            display: 'block', 
+            fontSize: '0.875rem', 
+            fontWeight: '500',
+            color: '#374151',
+            marginBottom: '0.5rem'
+          }}>
             How long are you available?
           </label>
           <select
             value={postData.duration}
             onChange={(e) => setPostData({ ...postData, duration: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+            style={{
+              width: '100%',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.875rem'
+            }}
           >
             {durations.map(duration => (
               <option key={duration} value={duration}>{duration}</option>
@@ -94,29 +142,44 @@ const AvailabilityPoster: React.FC<AvailabilityPosterProps> = ({ onPostAvailabil
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label style={{ 
+            display: 'block', 
+            fontSize: '0.875rem', 
+            fontWeight: '500',
+            color: '#374151',
+            marginBottom: '0.5rem'
+          }}>
             Message (optional)
           </label>
           <textarea
             rows={3}
             value={postData.message}
             onChange={(e) => setPostData({ ...postData, message: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+            style={{
+              width: '100%',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.875rem',
+              resize: 'vertical'
+            }}
             placeholder="e.g., Looking for ranked teammates, casual play, or just want to have fun!"
           />
         </div>
 
-        <div className="flex space-x-3">
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+            className="btn btn-secondary"
+            style={{ flex: 1, padding: '0.5rem' }}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="flex-1 bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition-colors"
+            className="btn btn-primary"
+            style={{ flex: 1, padding: '0.5rem' }}
           >
             Post Availability
           </button>

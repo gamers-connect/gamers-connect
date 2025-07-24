@@ -28,7 +28,6 @@ interface Forum {
 
 const CommunityForums: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'forums' | 'posts'>('forums');
-  const [selectedForum, setSelectedForum] = useState<string>('');
   const [showCreatePost, setShowCreatePost] = useState(false);
 
   const forums: Forum[] = [
@@ -106,44 +105,80 @@ const CommunityForums: React.FC = () => {
   ];
 
   const CreatePostForm: React.FC = () => (
-    <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-      <h3 className="text-lg font-semibold mb-4">Create New Post</h3>
-      <form className="space-y-4">
+    <div className="card card-padding mb-6">
+      <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>Create New Post</h3>
+      <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Forum</label>
-          <select className="w-full border border-gray-300 rounded-lg px-3 py-2">
+          <label style={{ 
+            display: 'block', 
+            fontSize: '0.875rem', 
+            fontWeight: '500',
+            color: '#374151',
+            marginBottom: '0.5rem'
+          }}>Forum</label>
+          <select style={{
+            width: '100%',
+            border: '1px solid #d1d5db',
+            borderRadius: '0.5rem',
+            padding: '0.5rem 0.75rem'
+          }}>
             {forums.map(forum => (
               <option key={forum.id} value={forum.id}>{forum.name}</option>
             ))}
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+          <label style={{ 
+            display: 'block', 
+            fontSize: '0.875rem', 
+            fontWeight: '500',
+            color: '#374151',
+            marginBottom: '0.5rem'
+          }}>Title</label>
           <input
             type="text"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            style={{
+              width: '100%',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              padding: '0.5rem 0.75rem'
+            }}
             placeholder="Enter post title..."
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+          <label style={{ 
+            display: 'block', 
+            fontSize: '0.875rem', 
+            fontWeight: '500',
+            color: '#374151',
+            marginBottom: '0.5rem'
+          }}>Content</label>
           <textarea
             rows={6}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            style={{
+              width: '100%',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              padding: '0.5rem 0.75rem',
+              resize: 'vertical'
+            }}
             placeholder="Write your post content..."
           />
         </div>
-        <div className="flex space-x-3">
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button
             type="button"
             onClick={() => setShowCreatePost(false)}
-            className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50"
+            className="btn btn-secondary"
+            style={{ flex: 1, padding: '0.5rem' }}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="flex-1 bg-black text-white py-2 rounded-lg hover:bg-gray-800"
+            className="btn btn-primary"
+            style={{ flex: 1, padding: '0.5rem' }}
           >
             Create Post
           </button>
@@ -153,51 +188,98 @@ const CommunityForums: React.FC = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-800">Community Forums</h2>
+    <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1f2937' }}>Community Forums</h2>
         <button
           onClick={() => setShowCreatePost(true)}
-          className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 flex items-center space-x-2"
+          className="btn btn-primary"
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
         >
-          <Plus className="h-4 w-4" />
+          <Plus style={{ height: '1rem', width: '1rem' }} />
           <span>New Post</span>
         </button>
       </div>
 
       {showCreatePost && <CreatePostForm />}
 
-      <div className="flex space-x-1 mb-6">
+      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1.5rem' }}>
         <button
           onClick={() => setActiveTab('forums')}
-          className={`px-4 py-2 rounded-lg ${activeTab === 'forums' ? 'bg-black text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+          style={{
+            padding: '0.5rem 1rem',
+            borderRadius: '0.5rem',
+            border: 'none',
+            cursor: 'pointer',
+            backgroundColor: activeTab === 'forums' ? '#000' : '#f3f4f6',
+            color: activeTab === 'forums' ? 'white' : '#374151',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'forums') {
+              e.currentTarget.style.backgroundColor = '#e5e7eb';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'forums') {
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+            }
+          }}
         >
           Forums
         </button>
         <button
           onClick={() => setActiveTab('posts')}
-          className={`px-4 py-2 rounded-lg ${activeTab === 'posts' ? 'bg-black text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+          style={{
+            padding: '0.5rem 1rem',
+            borderRadius: '0.5rem',
+            border: 'none',
+            cursor: 'pointer',
+            backgroundColor: activeTab === 'posts' ? '#000' : '#f3f4f6',
+            color: activeTab === 'posts' ? 'white' : '#374151',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'posts') {
+              e.currentTarget.style.backgroundColor = '#e5e7eb';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'posts') {
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+            }
+          }}
         >
           Recent Posts
         </button>
       </div>
 
       {activeTab === 'forums' ? (
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid-2">
           {forums.map(forum => (
-            <div key={forum.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer">
-              <div className="flex items-start space-x-4">
-                <div className="text-3xl">{forum.icon}</div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold mb-1">{forum.name}</h3>
-                  <p className="text-gray-600 text-sm mb-3">{forum.description}</p>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <Users className="h-4 w-4" />
+            <div key={forum.id} className="card card-padding" style={{ cursor: 'pointer' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                <div style={{ fontSize: '1.875rem' }}>{forum.icon}</div>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.25rem' }}>
+                    {forum.name}
+                  </h3>
+                  <p style={{ color: '#4b5563', fontSize: '0.875rem', marginBottom: '0.75rem' }}>
+                    {forum.description}
+                  </p>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '1rem', 
+                    fontSize: '0.875rem', 
+                    color: '#6b7280' 
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <Users style={{ height: '1rem', width: '1rem' }} />
                       <span>{forum.memberCount} members</span>
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <MessageCircle className="h-4 w-4" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <MessageCircle style={{ height: '1rem', width: '1rem' }} />
                       <span>{forum.postCount} posts</span>
                     </div>
                   </div>
@@ -207,33 +289,65 @@ const CommunityForums: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="space-y-4">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {posts.map(post => (
-            <div key={post.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-2">
-                    {post.isPinned && <Pin className="h-4 w-4 text-green-600" />}
-                    {post.isHot && <TrendingUp className="h-4 w-4 text-red-500" />}
-                    <h3 className="text-lg font-semibold hover:text-gray-600 cursor-pointer">
+            <div key={post.id} className="card card-padding">
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    {post.isPinned && <Pin style={{ height: '1rem', width: '1rem', color: '#16a34a' }} />}
+                    {post.isHot && <TrendingUp style={{ height: '1rem', width: '1rem', color: '#ef4444' }} />}
+                    <h3 style={{ 
+                      fontSize: '1.125rem', 
+                      fontWeight: '600', 
+                      cursor: 'pointer',
+                      transition: 'color 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = '#4b5563';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = '#111827';
+                    }}
+                    >
                       {post.title}
                     </h3>
                   </div>
-                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">{post.content}</p>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                  <p style={{ 
+                    color: '#4b5563', 
+                    fontSize: '0.875rem', 
+                    marginBottom: '0.75rem',
+                    overflow: 'hidden',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical'
+                  }}>
+                    {post.content}
+                  </p>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '1rem', 
+                    fontSize: '0.875rem', 
+                    color: '#6b7280' 
+                  }}>
                     <span>by {post.author}</span>
                     <span>in {post.game}</span>
-                    <div className="flex items-center space-x-1">
-                      <MessageCircle className="h-4 w-4" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <MessageCircle style={{ height: '1rem', width: '1rem' }} />
                       <span>{post.replies} replies</span>
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <Clock className="h-4 w-4" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <Clock style={{ height: '1rem', width: '1rem' }} />
                       <span>{post.lastActivity}</span>
                     </div>
                   </div>
                 </div>
-                <div className="text-right text-sm text-gray-500">
+                <div style={{ 
+                  textAlign: 'right', 
+                  fontSize: '0.875rem', 
+                  color: '#6b7280' 
+                }}>
                   <div>{post.views} views</div>
                 </div>
               </div>

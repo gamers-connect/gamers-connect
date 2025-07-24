@@ -2,12 +2,12 @@
 
 import React, { useState } from 'react';
 import { Gamepad2, Users, Calendar, Trophy, Plus, MessageCircle } from 'lucide-react';
-import { Navigation } from '../components/Navigation';
-import { PlayerCard } from '../components/PlayerCard';
-//import { EventCard } from '../components/EventCard';
-import { QuickActions } from '../components/QuickActions';
-import { FilterBar } from '../components/FilterBar';
-//import { NotificationPanel } from '../components/NotificationPanel';
+import Navigation from '../components/Navigation';
+import PlayerCard from '../components/PlayerCard';
+import EventCard from '../components/EventCard';
+import QuickActions from '../components/QuickActions';
+import FilterBar from '../components/FilterBar';
+import NotificationPanel from '../components/NotificationPanel';
 
 // Types
 interface User {
@@ -88,107 +88,173 @@ const mockSessions: GameSession[] = [
 
 // Landing Page Component
 const LandingPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => (
-  <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-    <nav className="flex justify-between items-center p-6">
-      <div className="flex items-center space-x-2">
-        <Gamepad2 className="h-8 w-8 text-gray-400" />
-        <h1 className="text-2xl font-bold">Game Connect</h1>
+  <div className="landing-hero">
+    <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <Gamepad2 style={{ height: '2rem', width: '2rem', color: '#9ca3af' }} />
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Game Connect</h1>
       </div>
-      <div className="space-x-4">
+      <div style={{ display: 'flex', gap: '1rem' }}>
         <button 
           onClick={onLogin}
-          className="px-6 py-2 bg-transparent border border-white rounded-lg hover:bg-white hover:text-black transition-all"
+          className="btn btn-secondary"
+          style={{ 
+            backgroundColor: 'transparent', 
+            border: '1px solid white',
+            color: 'white',
+            padding: '0.5rem 1.5rem'
+          }}
         >
           Login
         </button>
         <button 
           onClick={onLogin}
-          className="px-6 py-2 bg-gray-300 text-black rounded-lg hover:bg-white transition-all font-semibold"
+          className="btn"
+          style={{ 
+            backgroundColor: '#d1d5db', 
+            color: 'black',
+            padding: '0.5rem 1.5rem',
+            fontWeight: '600'
+          }}
         >
           Sign Up
         </button>
       </div>
     </nav>
 
-    <div className="container mx-auto px-6 py-20">
-      <div className="text-center max-w-4xl mx-auto">
-        <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-gray-200 to-white bg-clip-text text-transparent">
-          Connect. Play. Compete.
-        </h2>
-        <p className="text-xl mb-8 text-gray-300">
-          The ultimate gaming community for University of Hawaiʻi students. Find teammates, 
-          join tournaments, and discover gaming events right here on campus.
-        </p>
-        
-        <div className="grid md:grid-cols-3 gap-8 mt-16">
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-8 hover:bg-white/20 transition-all">
-            <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-3">Find Teammates</h3>
-            <p className="text-gray-300">Connect with fellow UH gamers who share your interests and playstyle</p>
-          </div>
-          
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-8 hover:bg-white/20 transition-all">
-            <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-3">Join Events</h3>
-            <p className="text-gray-300">Discover tournaments, meetups, and gaming events happening on campus</p>
-          </div>
-          
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-8 hover:bg-white/20 transition-all">
-            <Trophy className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-3">Compete</h3>
-            <p className="text-gray-300">Participate in tournaments and showcase your gaming skills</p>
-          </div>
+    <div className="hero-content">
+      <h2 className="hero-title">
+        Connect. Play. Compete.
+      </h2>
+      <p className="hero-subtitle">
+        The ultimate gaming community for University of Hawaiʻi students. Find teammates, 
+        join tournaments, and discover gaming events right here on campus.
+      </p>
+      
+      <div className="features-grid">
+        <div className="feature-card">
+          <Users style={{ height: '3rem', width: '3rem', color: '#9ca3af', margin: '0 auto 1rem' }} />
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.75rem' }}>Find Teammates</h3>
+          <p style={{ color: '#d1d5db' }}>Connect with fellow UH gamers who share your interests and playstyle</p>
         </div>
-
-        <button 
-          onClick={onLogin}
-          className="mt-12 px-8 py-4 bg-gradient-to-r from-gray-300 to-white text-black rounded-xl font-bold text-lg hover:from-gray-400 hover:to-gray-100 transition-all transform hover:scale-105"
-        >
-          Get Started Today
-        </button>
+        
+        <div className="feature-card">
+          <Calendar style={{ height: '3rem', width: '3rem', color: '#9ca3af', margin: '0 auto 1rem' }} />
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.75rem' }}>Join Events</h3>
+          <p style={{ color: '#d1d5db' }}>Discover tournaments, meetups, and gaming events happening on campus</p>
+        </div>
+        
+        <div className="feature-card">
+          <Trophy style={{ height: '3rem', width: '3rem', color: '#9ca3af', margin: '0 auto 1rem' }} />
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.75rem' }}>Compete</h3>
+          <p style={{ color: '#d1d5db' }}>Participate in tournaments and showcase your gaming skills</p>
+        </div>
       </div>
+
+      <button 
+        onClick={onLogin}
+        className="btn"
+        style={{ 
+          marginTop: '3rem',
+          padding: '1rem 2rem',
+          background: 'linear-gradient(to right, #d1d5db, #ffffff)',
+          color: 'black',
+          fontSize: '1.125rem',
+          fontWeight: 'bold',
+          transform: 'scale(1)',
+          transition: 'all 0.3s ease'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.05)';
+          e.currentTarget.style.background = 'linear-gradient(to right, #9ca3af, #e5e7eb)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.background = 'linear-gradient(to right, #d1d5db, #ffffff)';
+        }}
+      >
+        Get Started Today
+      </button>
     </div>
   </div>
 );
 
 // Dashboard Component
 const Dashboard: React.FC<{ user: User; onPageChange: (page: string) => void }> = ({ user, onPageChange }) => (
-  <div className="container mx-auto px-6 py-8">
+  <div className="container" style={{ padding: '2rem 0' }}>
     <div className="mb-8">
-      <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome back, {user.name}!</h2>
-      <p className="text-gray-600">Here's what's happening in your gaming community</p>
+      <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.5rem' }}>
+        Welcome back, {user.name}!
+      </h2>
+      <p style={{ color: '#4b5563' }}>Here&apos;s what&apos;s happening in your gaming community</p>
     </div>
 
-    <div className="grid lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2 space-y-6">
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-xl font-semibold mb-4 flex items-center">
-            <Users className="h-5 w-5 mr-2 text-black" />
+    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div className="card card-padding">
+          <h3 style={{ 
+            fontSize: '1.25rem', 
+            fontWeight: '600', 
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <Users style={{ height: '1.25rem', width: '1.25rem', color: 'black' }} />
             Recommended Players
           </h3>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid-2">
             {mockPlayers.slice(0, 4).map(player => (
               <PlayerCard key={player.id} player={player} />
             ))}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-xl font-semibold mb-4 flex items-center">
-            <Gamepad2 className="h-5 w-5 mr-2 text-black" />
+        <div className="card card-padding">
+          <h3 style={{ 
+            fontSize: '1.25rem', 
+            fontWeight: '600', 
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <Gamepad2 style={{ height: '1.25rem', width: '1.25rem', color: 'black' }} />
             Your Gaming Sessions
           </h3>
-          <div className="space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {mockSessions.map(session => (
-              <div key={session.id} className="border rounded-lg p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-semibold">{session.title}</h4>
-                  <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
+              <div key={session.id} style={{ 
+                border: '1px solid #e5e7eb', 
+                borderRadius: '0.5rem', 
+                padding: '1rem' 
+              }}>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'flex-start',
+                  marginBottom: '0.5rem'
+                }}>
+                  <h4 style={{ fontWeight: '600' }}>{session.title}</h4>
+                  <span style={{ 
+                    fontSize: '0.75rem',
+                    backgroundColor: '#f3f4f6',
+                    color: '#1f2937',
+                    padding: '0.25rem 0.5rem',
+                    borderRadius: '9999px'
+                  }}>
                     {session.game}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mb-2">Hosted by {session.host}</p>
-                <div className="flex items-center justify-between text-sm text-gray-500">
+                <p style={{ fontSize: '0.875rem', color: '#4b5563', marginBottom: '0.5rem' }}>
+                  Hosted by {session.host}
+                </p>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  fontSize: '0.875rem',
+                  color: '#6b7280'
+                }}>
                   <span>{session.date} at {session.time}</span>
                   <span>{session.players}/{session.maxPlayers} players</span>
                 </div>
@@ -198,22 +264,37 @@ const Dashboard: React.FC<{ user: User; onPageChange: (page: string) => void }> 
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <QuickActions onFindPlayers={() => onPageChange('players')} />
 
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center">
-            <Calendar className="h-4 w-4 mr-2 text-black" />
+        <div className="card card-padding">
+          <h3 style={{ 
+            fontSize: '1.125rem', 
+            fontWeight: '600', 
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <Calendar style={{ height: '1rem', width: '1rem', color: 'black' }} />
             Upcoming Events
           </h3>
-          <div className="space-y-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {mockEvents.slice(0, 3).map(event => (
               <EventCard key={event.id} event={event} isCompact />
             ))}
           </div>
           <button 
             onClick={() => onPageChange('events')}
-            className="w-full mt-4 text-black py-2 text-sm hover:bg-gray-50 rounded-lg transition-colors"
+            className="btn"
+            style={{ 
+              width: '100%',
+              marginTop: '1rem',
+              backgroundColor: 'transparent',
+              color: 'black',
+              padding: '0.5rem',
+              fontSize: '0.875rem'
+            }}
           >
             View All Events
           </button>
@@ -234,10 +315,12 @@ const FindPlayers: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-6 py-8">
+    <div className="container" style={{ padding: '2rem 0' }}>
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">Find Players</h2>
-        <p className="text-gray-600">Connect with fellow UH gamers who share your interests</p>
+        <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.5rem' }}>
+          Find Players
+        </h2>
+        <p style={{ color: '#4b5563' }}>Connect with fellow UH gamers who share your interests</p>
       </div>
 
       <FilterBar
@@ -253,7 +336,7 @@ const FindPlayers: React.FC = () => {
         onSearch={handleSearch}
       />
 
-      <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
+      <div className="grid-3">
         {mockPlayers.map(player => (
           <PlayerCard key={player.id} player={player} showRating isDetailed />
         ))}
@@ -264,20 +347,22 @@ const FindPlayers: React.FC = () => {
 
 // Events Component
 const Events: React.FC = () => (
-  <div className="container mx-auto px-6 py-8">
+  <div className="container" style={{ padding: '2rem 0' }}>
     <div className="mb-8">
-      <h2 className="text-3xl font-bold text-gray-800 mb-2">Gaming Events</h2>
-      <p className="text-gray-600">Discover tournaments, meetups, and gaming events at UH</p>
+      <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '0.5rem' }}>
+        Gaming Events
+      </h2>
+      <p style={{ color: '#4b5563' }}>Discover tournaments, meetups, and gaming events at UH</p>
     </div>
 
     <div className="mb-6">
-      <button className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center space-x-2">
-        <Plus className="h-4 w-4" />
+      <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <Plus style={{ height: '1rem', width: '1rem' }} />
         <span>Create Event</span>
       </button>
     </div>
 
-    <div className="grid lg:grid-cols-2 gap-6">
+    <div className="grid-2">
       {mockEvents.map(event => (
         <EventCard key={event.id} event={event} />
       ))}
@@ -287,51 +372,108 @@ const Events: React.FC = () => (
 
 // Profile Component
 const Profile: React.FC<{ user: User }> = ({ user }) => (
-  <div className="container mx-auto px-6 py-8">
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-gray-800 to-black px-6 py-8">
-          <div className="flex items-center space-x-6">
-            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-4xl">
+  <div className="container" style={{ padding: '2rem 0' }}>
+    <div style={{ maxWidth: '64rem', margin: '0 auto' }}>
+      <div className="card" style={{ overflow: 'hidden' }}>
+        <div style={{ 
+          background: 'linear-gradient(to right, #374151, #000000)',
+          padding: '2rem 1.5rem',
+          color: 'white'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <div style={{ 
+              width: '6rem',
+              height: '6rem',
+              backgroundColor: 'white',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '2.25rem'
+            }}>
               {user.avatar}
             </div>
-            <div className="text-white">
-              <h2 className="text-3xl font-bold">{user.name}</h2>
-              <p className="text-gray-200">{user.email}</p>
-              <p className="text-gray-200">{user.location}</p>
+            <div>
+              <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold' }}>{user.name}</h2>
+              <p style={{ color: '#e5e7eb' }}>{user.email}</p>
+              <p style={{ color: '#e5e7eb' }}>{user.location}</p>
             </div>
           </div>
         </div>
 
-        <div className="p-6">
-          <div className="grid lg:grid-cols-2 gap-8">
-            <div className="space-y-6">
+        <div className="card-padding">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div>
-                <h3 className="text-lg font-semibold mb-3">Gaming Preferences</h3>
-                <div className="space-y-3">
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.75rem' }}>
+                  Gaming Preferences
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Favorite Games</label>
-                    <div className="flex flex-wrap gap-2">
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '0.875rem', 
+                      fontWeight: '500',
+                      color: '#374151',
+                      marginBottom: '0.5rem'
+                    }}>
+                      Favorite Games
+                    </label>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                       {user.games.map(game => (
-                        <span key={game} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
+                        <span key={game} style={{ 
+                          backgroundColor: '#f3f4f6',
+                          color: '#1f2937',
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.875rem'
+                        }}>
                           {game}
                         </span>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Platforms</label>
-                    <div className="flex flex-wrap gap-2">
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '0.875rem', 
+                      fontWeight: '500',
+                      color: '#374151',
+                      marginBottom: '0.5rem'
+                    }}>
+                      Platforms
+                    </label>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                       {user.platforms.map(platform => (
-                        <span key={platform} className="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">
+                        <span key={platform} style={{ 
+                          backgroundColor: '#e5e7eb',
+                          color: '#1f2937',
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.875rem'
+                        }}>
                           {platform}
                         </span>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Playstyle</label>
-                    <span className="bg-gray-300 text-gray-800 px-3 py-1 rounded-full text-sm">
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '0.875rem', 
+                      fontWeight: '500',
+                      color: '#374151',
+                      marginBottom: '0.5rem'
+                    }}>
+                      Playstyle
+                    </label>
+                    <span style={{ 
+                      backgroundColor: '#d1d5db',
+                      color: '#1f2937',
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.875rem'
+                    }}>
                       {user.playstyle}
                     </span>
                   </div>
@@ -339,39 +481,53 @@ const Profile: React.FC<{ user: User }> = ({ user }) => (
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-3">Bio</h3>
-                <p className="text-gray-600">{user.bio}</p>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.75rem' }}>Bio</h3>
+                <p style={{ color: '#4b5563' }}>{user.bio}</p>
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div>
-                <h3 className="text-lg font-semibold mb-3">Contact Info</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <MessageCircle className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm">Discord: {user.discord}</span>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.75rem' }}>Contact Info</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <MessageCircle style={{ height: '1rem', width: '1rem', color: '#6b7280' }} />
+                    <span style={{ fontSize: '0.875rem' }}>Discord: {user.discord}</span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-3">Settings</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Notifications</span>
-                    <button className={`w-12 h-6 rounded-full transition-colors ${
-                      user.notifications ? 'bg-black' : 'bg-gray-300'
-                    }`}>
-                      <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                        user.notifications ? 'translate-x-6' : 'translate-x-1'
-                      }`}></div>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.75rem' }}>Settings</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '0.875rem' }}>Notifications</span>
+                    <button style={{ 
+                      width: '3rem',
+                      height: '1.5rem',
+                      borderRadius: '9999px',
+                      backgroundColor: user.notifications ? '#000' : '#d1d5db',
+                      border: 'none',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      transition: 'all 0.2s ease'
+                    }}>
+                      <div style={{ 
+                        width: '1.25rem',
+                        height: '1.25rem',
+                        backgroundColor: 'white',
+                        borderRadius: '50%',
+                        position: 'absolute',
+                        top: '0.125rem',
+                        left: user.notifications ? '1.5rem' : '0.25rem',
+                        transition: 'all 0.2s ease'
+                      }}></div>
                     </button>
                   </div>
                 </div>
               </div>
 
-              <button className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors">
+              <button className="btn btn-primary" style={{ width: '100%', padding: '0.75rem' }}>
                 Edit Profile
               </button>
             </div>
@@ -446,7 +602,7 @@ export default function GameConnect() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
       <Navigation
         user={user}
         currentPage={currentPage}
