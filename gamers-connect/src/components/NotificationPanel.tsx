@@ -10,12 +10,24 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ show }) => {
   if (!show) return null;
 
   return (
-    <div className="fixed top-16 right-4 bg-white rounded-lg shadow-lg p-4 w-80 z-50 animate-fade-in">
-      <h3 className="font-semibold mb-3">Notifications</h3>
-      <div className="space-y-2 text-sm">
-        <div className="p-2 bg-gray-50 rounded">New player match found!</div>
-        <div className="p-2 bg-gray-100 rounded">Valorant tournament starts tomorrow</div>
-        <div className="p-2 bg-gray-200 rounded">Your gaming session is starting soon</div>
+    <div style={{
+      position: 'fixed',
+      top: '4rem',
+      right: '1rem',
+      width: '20rem',
+      maxHeight: '24rem',
+      background: 'rgba(255, 255, 255, 0.95)',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      borderRadius: '0.75rem',
+      padding: '1rem',
+      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+      zIndex: 50,
+      color: '#1f2937'
+    }}>
+      <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.75rem' }}>Notifications</h3>
+      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+        No new notifications
       </div>
     </div>
   );

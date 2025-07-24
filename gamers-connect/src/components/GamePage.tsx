@@ -1,19 +1,12 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Users, Calendar, TrendingUp, Star, MessageCircle, Play } from 'lucide-react';
-import { PlayerCard } from './PlayerCard';
-import { EventCard } from './EventCard';
+import { Users, Calendar, Star, MessageCircle, Play } from 'lucide-react';
+import PlayerCard from './PlayerCard';
+import EventCard from './EventCard';
 
 interface GamePageProps {
   game: string;
-}
-
-interface GameStats {
-  totalPlayers: number;
-  onlinePlayers: number;
-  upcomingEvents: number;
-  avgRating: number;
 }
 
 interface GameGuide {
@@ -73,32 +66,32 @@ const GamePage: React.FC<GamePageProps> = ({ game }) => {
   ];
 
   const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string | number }> = ({ icon, label, value }) => (
-    <div className="bg-white rounded-lg p-4 text-center">
-      <div className="flex justify-center mb-2">{icon}</div>
-      <div className="text-2xl font-bold text-gray-800">{value}</div>
-      <div className="text-sm text-gray-600">{label}</div>
+    <div className="stat-card">
+      <div className="stat-icon">{icon}</div>
+      <div className="stat-value">{value}</div>
+      <div className="stat-label">{label}</div>
     </div>
   );
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="game-page-container">
       {/* Game Header */}
-      <div className="bg-gradient-to-r from-gray-800 to-black rounded-xl p-8 mb-8 text-white">
-        <div className="flex items-center space-x-6">
-          <div className="text-6xl">{currentGame.icon}</div>
-          <div className="flex-1">
-            <h1 className="text-4xl font-bold mb-2">{game}</h1>
-            <p className="text-gray-200 mb-4">{currentGame.description}</p>
-            <div className="flex flex-wrap gap-2 mb-4">
+      <div className="game-header">
+        <div className="game-header-content">
+          <div className="game-icon">{currentGame.icon}</div>
+          <div className="game-info">
+            <h1 className="game-title">{game}</h1>
+            <p className="game-description">{currentGame.description}</p>
+            <div className="game-genres">
               {currentGame.genres.map(genre => (
-                <span key={genre} className="bg-white/20 px-3 py-1 rounded-full text-sm">
+                <span key={genre} className="genre-tag">
                   {genre}
                 </span>
               ))}
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="game-platforms">
               {currentGame.platforms.map(platform => (
-                <span key={platform} className="bg-gray-600 px-3 py-1 rounded-full text-sm">
+                <span key={platform} className="platform-tag">
                   {platform}
                 </span>
               ))}
@@ -108,14 +101,14 @@ const GamePage: React.FC<GamePageProps> = ({ game }) => {
       </div>
 
       {/* Game Statistics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="stats-grid">
         <StatCard
           icon={<Users className="h-6 w-6 text-black" />}
           label="Total Players"
           value={currentGame.stats.totalPlayers}
         />
         <StatCard
-          icon={<div className="w-3 h-3 bg-green-500 rounded-full" />}
+          icon={<div className="online-indicator" />}
           label="Online Now"
           value={currentGame.stats.onlinePlayers}
         />
@@ -132,7 +125,7 @@ const GamePage: React.FC<GamePageProps> = ({ game }) => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex space-x-1 mb-6">
+      <div className="game-tabs">
         {[
           { key: 'players', label: 'Active Players', icon: Users },
           { key: 'events', label: 'Events', icon: Calendar },
@@ -142,9 +135,7 @@ const GamePage: React.FC<GamePageProps> = ({ game }) => {
           <button
             key={key}
             onClick={() => setActiveTab(key as 'players' | 'events' | 'guides' | 'discussion' )}
-            className={`px-4 py-2 rounded-lg flex items-center space-x-2 ${
-              activeTab === key ? 'bg-black text-white' : 'bg-gray-100 hover:bg-gray-200'
-            }`}
+            className={`game-tab ${activeTab === key ? 'game-tab-active' : ''}`}
           >
             <Icon className="h-4 w-4" />
             <span>{label}</span>
@@ -153,17 +144,17 @@ const GamePage: React.FC<GamePageProps> = ({ game }) => {
       </div>
 
       {/* Tab Content */}
-      <div className="min-h-[400px]">
+      <div className="tab-content">
         {activeTab === 'players' && (
           <div>
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold">Active {game} Players</h3>
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <div className="section-header">
+              <h3 className="section-title">Active {game} Players</h3>
+              <div className="online-status">
+                <div className="online-dot"></div>
                 <span>{currentGame.stats.onlinePlayers} online now</span>
               </div>
             </div>
-            <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
+            <div className="players-grid">
               {mockPlayers.map(player => (
                 <PlayerCard key={player.id} player={player} showRating isDetailed />
               ))}
@@ -173,13 +164,13 @@ const GamePage: React.FC<GamePageProps> = ({ game }) => {
 
         {activeTab === 'events' && (
           <div>
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold">Upcoming {game} Events</h3>
-              <button className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800">
+            <div className="section-header">
+              <h3 className="section-title">Upcoming {game} Events</h3>
+              <button className="btn btn-primary">
                 Create Event
               </button>
             </div>
-            <div className="grid lg:grid-cols-2 gap-6">
+            <div className="events-grid">
               {mockEvents.map(event => (
                 <EventCard key={event.id} event={event} />
               ))}
@@ -189,25 +180,25 @@ const GamePage: React.FC<GamePageProps> = ({ game }) => {
 
         {activeTab === 'guides' && (
           <div>
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold">{game} Guides & Tutorials</h3>
-              <button className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800">
+            <div className="section-header">
+              <h3 className="section-title">{game} Guides & Tutorials</h3>
+              <button className="btn btn-primary">
                 Upload Guide
               </button>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="guides-grid">
               {mockGuides.map(guide => (
-                <div key={guide.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
-                  <div className="p-6">
-                    <div className="text-4xl mb-4 text-center">{guide.thumbnail}</div>
-                    <h4 className="font-semibold mb-2">{guide.title}</h4>
-                    <p className="text-sm text-gray-600 mb-3">by {guide.author}</p>
-                    <div className="flex justify-between items-center text-sm text-gray-500">
-                      <div className="flex items-center space-x-1">
+                <div key={guide.id} className="guide-card">
+                  <div className="guide-content">
+                    <div className="guide-thumbnail">{guide.thumbnail}</div>
+                    <h4 className="guide-title">{guide.title}</h4>
+                    <p className="guide-author">by {guide.author}</p>
+                    <div className="guide-stats">
+                      <div className="guide-rating">
                         <Star className="h-4 w-4 text-yellow-400 fill-current" />
                         <span>{guide.rating}</span>
                       </div>
-                      <span>{guide.views} views</span>
+                      <span className="guide-views">{guide.views} views</span>
                     </div>
                   </div>
                 </div>
@@ -218,23 +209,23 @@ const GamePage: React.FC<GamePageProps> = ({ game }) => {
 
         {activeTab === 'discussion' && (
           <div>
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold">{game} Discussion</h3>
-              <button className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800">
+            <div className="section-header">
+              <h3 className="section-title">{game} Discussion</h3>
+              <button className="btn btn-primary">
                 New Topic
               </button>
             </div>
-            <div className="space-y-4">
+            <div className="discussion-list">
               {[
                 { title: `Best ${game} strategies for beginners`, author: 'GameMaster', replies: 15, lastActivity: '2 hours ago' },
                 { title: `${game} tournament team formation`, author: 'ProPlayer', replies: 8, lastActivity: '4 hours ago' },
                 { title: `Looking for ${game} practice partners`, author: 'NewGamer', replies: 23, lastActivity: '1 day ago' }
               ].map((topic, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer">
-                  <h4 className="font-semibold mb-2 hover:text-gray-600">{topic.title}</h4>
-                  <div className="flex justify-between items-center text-sm text-gray-500">
+                <div key={index} className="discussion-topic">
+                  <h4 className="topic-title">{topic.title}</h4>
+                  <div className="topic-meta">
                     <span>by {topic.author}</span>
-                    <div className="flex items-center space-x-4">
+                    <div className="topic-stats">
                       <span>{topic.replies} replies</span>
                       <span>last activity {topic.lastActivity}</span>
                     </div>

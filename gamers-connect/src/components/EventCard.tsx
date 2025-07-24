@@ -1,82 +1,101 @@
 "use client";
 
 import React from 'react';
-import { Calendar, Clock, MapPin, Users } from 'lucide-react';
-
-interface GameEvent {
-  id: number;
-  title: string;
-  game: string;
-  date: string;
-  time: string;
-  location: string;
-  type: 'Tournament' | 'Meetup' | 'Contest' | 'Scrimmage';
-  attendees: number;
-  maxAttendees: number;
-}
-
+import { GameEvent } from '../app/types';
 interface EventCardProps {
   event: GameEvent;
   isCompact?: boolean;
 }
 
-export const EventCard: React.FC<EventCardProps> = ({ event, isCompact = false }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, isCompact = false }) => {
   if (isCompact) {
     return (
-      <div className="border-l-4 border-black pl-3 py-2">
-        <h4 className="font-medium text-sm">{event.title}</h4>
-        <p className="text-xs text-gray-600">{event.date} • {event.location}</p>
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        borderRadius: '0.5rem',
+        padding: '1rem',
+        color: 'white',
+        transition: 'all 0.2s ease'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+      }}>
+        <h4 style={{ fontWeight: '600', marginBottom: '0.5rem', fontSize: '0.875rem' }}>{event.title}</h4>
+        <p style={{ fontSize: '0.75rem', color: '#d1d5db', margin: 0 }}>
+          {event.date} • {event.location}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-3">
-          <span className={`px-3 py-1 text-sm rounded-full ${
-            event.type === 'Tournament' ? 'bg-gray-800 text-white' :
-            event.type === 'Meetup' ? 'bg-gray-600 text-white' :
-            event.type === 'Contest' ? 'bg-gray-700 text-white' :
-            'bg-gray-500 text-white'
-          }`}>
-            {event.type}
-          </span>
-          <span className="text-sm bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
-            {event.game}
-          </span>
-        </div>
-
-        <h3 className="text-xl font-semibold mb-3">{event.title}</h3>
-        
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center space-x-2 text-gray-600">
-            <Calendar className="h-4 w-4" />
-            <span className="text-sm">{event.date}</span>
-          </div>
-          <div className="flex items-center space-x-2 text-gray-600">
-            <Clock className="h-4 w-4" />
-            <span className="text-sm">{event.time}</span>
-          </div>
-          <div className="flex items-center space-x-2 text-gray-600">
-            <MapPin className="h-4 w-4" />
-            <span className="text-sm">{event.location}</span>
-          </div>
-          <div className="flex items-center space-x-2 text-gray-600">
-            <Users className="h-4 w-4" />
-            <span className="text-sm">{event.attendees}/{event.maxAttendees} attendees</span>
-          </div>
-        </div>
-
-        <div className="flex space-x-2">
-          <button className="flex-1 bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition-colors">
-            Join Event
-          </button>
-          <button className="flex-1 border border-black text-black py-2 rounded-lg hover:bg-gray-50 transition-colors">
-            View Details
-          </button>
-        </div>
+    <div style={{
+      background: 'rgba(255, 255, 255, 0.1)',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(255, 255, 255, 0.2)',
+      borderRadius: '0.75rem',
+      padding: '1.5rem',
+      transition: 'all 0.3s ease',
+      color: 'white'
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+      e.currentTarget.style.transform = 'translateY(-2px)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+      e.currentTarget.style.transform = 'translateY(0)';
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>{event.title}</h3>
+        <span style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+          color: 'white',
+          padding: '0.25rem 0.75rem',
+          borderRadius: '9999px',
+          fontSize: '0.75rem',
+          fontWeight: '500'
+        }}>
+          {event.type}
+        </span>
+      </div>
+      
+      <p style={{ color: '#d1d5db', marginBottom: '0.75rem', margin: '0 0 0.75rem 0' }}>{event.game}</p>
+      <p style={{ color: '#d1d5db', fontSize: '0.875rem', marginBottom: '1rem', margin: '0 0 1rem 0' }}>
+        {event.date} at {event.time} • {event.location}
+      </p>
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ color: '#d1d5db', fontSize: '0.875rem' }}>
+          {event.attendees}/{event.maxAttendees} attendees
+        </span>
+        <button style={{
+          padding: '0.5rem 1rem',
+          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+          color: 'white',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          borderRadius: '0.5rem',
+          cursor: 'pointer',
+          fontSize: '0.875rem',
+          fontWeight: '500',
+          transition: 'all 0.2s ease'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+        }}>
+          Join Event
+        </button>
       </div>
     </div>
   );
 };
+
+export default EventCard;

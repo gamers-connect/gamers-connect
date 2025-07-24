@@ -26,7 +26,7 @@ interface Connection {
   mutualGames: number;
 }
 
-export const ConnectionSystem: React.FC = () => {
+const ConnectionSystem: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'requests' | 'connections'>('requests');
   const [showSendRequest, setShowSendRequest] = useState(false);
 
@@ -117,20 +117,20 @@ export const ConnectionSystem: React.FC = () => {
     };
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl max-w-md w-full p-6">
+      <div className="modal">
+        <div className="modal-content">
           <h3 className="text-lg font-semibold mb-4">Send Connection Request</h3>
           <p className="text-sm text-gray-600 mb-4">to {playerName}</p>
           
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="form-group">
+            <label className="form-label">
               Message (optional)
             </label>
             <textarea
               rows={3}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+              className="textarea"
               placeholder="Hi! I'd like to connect and play together..."
             />
           </div>
@@ -138,13 +138,13 @@ export const ConnectionSystem: React.FC = () => {
           <div className="flex space-x-3">
             <button
               onClick={onClose}
-              className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50"
+              className="btn btn-outline flex-1"
             >
               Cancel
             </button>
             <button
               onClick={handleSend}
-              className="flex-1 bg-black text-white py-2 rounded-lg hover:bg-gray-800"
+              className="btn btn-primary flex-1"
             >
               Send Request
             </button>
@@ -164,48 +164,48 @@ export const ConnectionSystem: React.FC = () => {
       </div>
 
       {requests.filter(r => r.status === 'pending').length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <UserPlus className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+        <div className="empty-state">
+          <UserPlus className="empty-icon" />
           <p>No pending connection requests</p>
         </div>
       ) : (
         <div className="space-y-4">
           {requests.filter(r => r.status === 'pending').map(request => (
-            <div key={request.id} className="bg-white rounded-xl shadow-lg p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center text-white font-bold">
+            <div key={request.id} className="card card-padding">
+              <div className="card-header">
+                <div className="user-info">
+                  <div className="avatar">
                     {request.from.charAt(0)}
                   </div>
                   <div>
                     <h4 className="font-semibold">{request.from}</h4>
-                    <div className="flex items-center space-x-2 text-sm text-gray-500">
+                    <div className="user-meta">
                       <span>{request.platform}</span>
                       <span>•</span>
                       <span>{request.games.join(', ')}</span>
                     </div>
                   </div>
                 </div>
-                <span className="text-xs text-gray-500">{request.timestamp}</span>
+                <span className="timestamp">{request.timestamp}</span>
               </div>
 
               {request.message && (
-                <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                  <p className="text-sm text-gray-700">"{request.message}"</p>
+                <div className="message-box">
+                  <p className="text-sm text-gray-700">&quot;{request.message}&quot;</p>
                 </div>
               )}
 
-              <div className="flex space-x-2">
+              <div className="button-group">
                 <button
                   onClick={() => handleRequestAction(request.id, 'accept')}
-                  className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 flex items-center justify-center space-x-1"
+                  className="btn btn-success btn-flex"
                 >
                   <UserCheck className="h-4 w-4" />
                   <span>Accept</span>
                 </button>
                 <button
                   onClick={() => handleRequestAction(request.id, 'decline')}
-                  className="flex-1 bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 flex items-center justify-center space-x-1"
+                  className="btn btn-secondary btn-flex"
                 >
                   <UserX className="h-4 w-4" />
                   <span>Decline</span>
@@ -216,21 +216,20 @@ export const ConnectionSystem: React.FC = () => {
         </div>
       )}
 
-      {/* Recent Activity */}
-      <div className="mt-8">
-        <h4 className="font-medium text-gray-700 mb-3">Recent Activity</h4>
+      <div className="activity-section">
+        <h4 className="activity-title">Recent Activity</h4>
         <div className="space-y-2">
           {requests.filter(r => r.status !== 'pending').map(request => (
-            <div key={request.id} className="flex items-center space-x-3 text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
+            <div key={request.id} className="activity-item">
               {request.status === 'accepted' ? (
-                <UserCheck className="h-4 w-4 text-green-600" />
+                <UserCheck className="activity-icon activity-accepted" />
               ) : (
-                <UserX className="h-4 w-4 text-red-600" />
+                <UserX className="activity-icon activity-declined" />
               )}
               <span>
                 You {request.status} a connection request from <strong>{request.from}</strong>
               </span>
-              <span className="text-xs">{request.timestamp}</span>
+              <span className="timestamp">{request.timestamp}</span>
             </div>
           ))}
         </div>
@@ -247,62 +246,55 @@ export const ConnectionSystem: React.FC = () => {
         </span>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="connections-grid">
         {connections.map(connection => (
-          <div key={connection.id} className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center text-white font-bold">
+          <div key={connection.id} className="card card-padding">
+            <div className="card-header">
+              <div className="user-info">
+                <div className="avatar-container">
+                  <div className="avatar">
                     {connection.name.charAt(0)}
                   </div>
-                  <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
-                    connection.status === 'online' ? 'bg-green-500' :
-                    connection.status === 'away' ? 'bg-yellow-500' : 'bg-gray-400'
-                  }`} />
+                  <div className={`status-dot status-${connection.status}`} />
                 </div>
                 <div>
                   <h4 className="font-semibold">{connection.name}</h4>
-                  <div className="flex items-center space-x-1">
-                    <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                  <div className="rating">
+                    <Star className="star-icon" />
                     <span className="text-sm text-gray-600">{connection.rating}</span>
                   </div>
                 </div>
               </div>
-              <span className={`px-2 py-1 text-xs rounded-full ${
-                connection.status === 'online' ? 'bg-green-100 text-green-800' :
-                connection.status === 'away' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-gray-100 text-gray-800'
-              }`}>
+              <span className={`status-badge status-badge-${connection.status}`}>
                 {connection.status}
               </span>
             </div>
 
-            <div className="space-y-2 mb-4 text-sm text-gray-600">
-              <div className="flex items-center space-x-2">
+            <div className="connection-info">
+              <div className="info-item">
                 <span>🎮</span>
                 <span>{connection.games.join(', ')}</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <MapPin className="h-3 w-3" />
+              <div className="info-item">
+                <MapPin className="info-icon" />
                 <span>{connection.location}</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Clock className="h-3 w-3" />
+              <div className="info-item">
+                <Clock className="info-icon" />
                 <span>{connection.lastSeen}</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="info-item">
                 <span>🤝</span>
                 <span>{connection.mutualGames} shared games</span>
               </div>
             </div>
 
-            <div className="flex space-x-2">
-              <button className="flex-1 bg-black text-white py-2 rounded-lg hover:bg-gray-800 flex items-center justify-center space-x-1">
+            <div className="button-group">
+              <button className="btn btn-primary btn-flex">
                 <MessageCircle className="h-4 w-4" />
                 <span>Message</span>
               </button>
-              <button className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+              <button className="btn btn-outline">
                 Profile
               </button>
             </div>
@@ -313,32 +305,28 @@ export const ConnectionSystem: React.FC = () => {
   );
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Connections</h2>
+    <div className="container">
+      <div className="header">
+        <h2 className="title">Connections</h2>
         <button
           onClick={() => setShowSendRequest(true)}
-          className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 flex items-center space-x-2"
+          className="btn btn-primary"
         >
           <UserPlus className="h-4 w-4" />
           <span>Send Request</span>
         </button>
       </div>
 
-      <div className="flex space-x-1 mb-6">
+      <div className="tabs">
         <button
           onClick={() => setActiveTab('requests')}
-          className={`px-4 py-2 rounded-lg ${
-            activeTab === 'requests' ? 'bg-black text-white' : 'bg-gray-100 hover:bg-gray-200'
-          }`}
+          className={`tab ${activeTab === 'requests' ? 'tab-active' : ''}`}
         >
           Requests ({requests.filter(r => r.status === 'pending').length})
         </button>
         <button
           onClick={() => setActiveTab('connections')}
-          className={`px-4 py-2 rounded-lg ${
-            activeTab === 'connections' ? 'bg-black text-white' : 'bg-gray-100 hover:bg-gray-200'
-          }`}
+          className={`tab ${activeTab === 'connections' ? 'tab-active' : ''}`}
         >
           Connections ({connections.length})
         </button>
@@ -355,3 +343,5 @@ export const ConnectionSystem: React.FC = () => {
     </div>
   );
 };
+
+export default ConnectionSystem;

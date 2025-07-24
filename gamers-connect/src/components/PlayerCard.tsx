@@ -1,18 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Star, Gamepad2, Settings, MapPin } from 'lucide-react';
-
-interface Player {
-  id: number;
-  name: string;
-  games: string[];
-  platform: string;
-  playstyle: string;
-  location: string;
-  status: 'online' | 'away' | 'offline';
-  rating: number;
-}
+import { Player } from '../app/types';
 
 interface PlayerCardProps {
   player: Player;
@@ -23,83 +12,73 @@ interface PlayerCardProps {
 const PlayerCard: React.FC<PlayerCardProps> = ({ 
   player, 
   showRating = false, 
-  isDetailed = false 
-}) => {
-  if (isDetailed) {
-    return (
-      <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center text-white font-bold">
-              {player.name.charAt(0)}
-            </div>
-            <div>
-              <h3 className="font-semibold">{player.name}</h3>
-              {showRating && (
-                <div className="flex items-center space-x-1">
-                  <Star className="h-4 w-4 text-gray-400 fill-current" />
-                  <span className="text-sm text-gray-600">{player.rating}</span>
-                </div>
-              )}
-            </div>
-          </div>
-          <span className={`px-3 py-1 text-sm rounded-full ${
-            player.status === 'online' ? 'bg-gray-100 text-gray-800' : 'bg-gray-300 text-gray-700'
-          }`}>
-            {player.status}
-          </span>
-        </div>
-
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center space-x-2">
-            <Gamepad2 className="h-4 w-4 text-gray-500" />
-            <span className="text-sm">{player.games.join(', ')}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Settings className="h-4 w-4 text-gray-500" />
-            <span className="text-sm">{player.platform} • {player.playstyle}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <MapPin className="h-4 w-4 text-gray-500" />
-            <span className="text-sm">{player.location}</span>
-          </div>
-        </div>
-
-        <div className="flex space-x-2">
-          <button className="flex-1 bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition-colors">
-            Connect
-          </button>
-          <button className="flex-1 border border-black text-black py-2 rounded-lg hover:bg-gray-50 transition-colors">
-            View Profile
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between mb-2">
-        <h4 className="font-semibold">{player.name}</h4>
-        <span className={`px-2 py-1 text-xs rounded-full ${
-          player.status === 'online' ? 'bg-gray-100 text-gray-800' : 'bg-gray-300 text-gray-700'
-        }`}>
-          {player.status}
-        </span>
-      </div>
-      {showRating && (
-        <div className="flex items-center space-x-1 mb-2">
-          <Star className="h-4 w-4 text-gray-400 fill-current" />
-          <span className="text-sm text-gray-600">{player.rating}</span>
-        </div>
-      )}
-      <p className="text-sm text-gray-600 mb-2">{player.games.join(', ')}</p>
-      <p className="text-xs text-gray-500 mb-3">{player.platform} • {player.playstyle}</p>
-      <button className="bg-black text-white w-full py-2 rounded-lg hover:bg-gray-800 transition-colors">
-        Connect
-      </button>
+}) => (
+  <div style={{
+    background: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    borderRadius: '0.75rem',
+    padding: '1.5rem',
+    transition: 'all 0.3s ease',
+    color: 'white'
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+    e.currentTarget.style.transform = 'translateY(-2px)';
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+    e.currentTarget.style.transform = 'translateY(0)';
+  }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+      <h3 style={{ fontSize: '1.125rem', fontWeight: '600', margin: 0 }}>{player.name}</h3>
+      <span style={{
+        backgroundColor: player.status === 'online' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(156, 163, 175, 0.2)',
+        color: player.status === 'online' ? '#22c55e' : '#9ca3af',
+        padding: '0.25rem 0.75rem',
+        borderRadius: '9999px',
+        fontSize: '0.75rem',
+        border: `1px solid ${player.status === 'online' ? '#22c55e' : '#9ca3af'}`,
+        fontWeight: '500'
+      }}>
+        {player.status}
+      </span>
     </div>
-  );
-};
+    
+    <p style={{ color: '#d1d5db', marginBottom: '0.75rem', margin: '0 0 0.75rem 0' }}>
+      {player.games.join(', ')}
+    </p>
+    
+    <p style={{ color: '#d1d5db', fontSize: '0.875rem', marginBottom: '1rem', margin: '0 0 1rem 0' }}>
+      {player.platform} • {player.playstyle}
+    </p>
+    
+    {showRating && (
+      <p style={{ color: '#d1d5db', fontSize: '0.875rem', marginBottom: '1rem', margin: '0 0 1rem 0' }}>
+        Rating: {player.rating}/5.0
+      </p>
+    )}
+    
+    <button style={{
+      width: '100%',
+      padding: '0.75rem',
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      color: 'white',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      borderRadius: '0.5rem',
+      cursor: 'pointer',
+      fontWeight: '500',
+      transition: 'all 0.2s ease'
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+    }}>
+      Connect
+    </button>
+  </div>
+);
 
 export default PlayerCard;
