@@ -1,18 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Star, Gamepad2, Settings, MapPin } from 'lucide-react';
-
-interface Player {
-  id: number;
-  name: string;
-  games: string[];
-  platform: string;
-  playstyle: string;
-  location: string;
-  status: 'online' | 'away' | 'offline';
-  rating: number;
-}
+import { Player } from '../app/types';
 
 interface PlayerCardProps {
   player: Player;
@@ -23,79 +12,73 @@ interface PlayerCardProps {
 const PlayerCard: React.FC<PlayerCardProps> = ({ 
   player, 
   showRating = false, 
-  isDetailed = false 
-}) => {
-  if (isDetailed) {
-    return (
-      <div className="player-card-detailed">
-        <div className="player-card-header">
-          <div className="player-info">
-            <div className="player-avatar">
-              {player.name.charAt(0)}
-            </div>
-            <div className="player-details">
-              <h3 className="player-name">{player.name}</h3>
-              {showRating && (
-                <div className="player-rating">
-                  <Star className="rating-star" />
-                  <span className="rating-value">{player.rating}</span>
-                </div>
-              )}
-            </div>
-          </div>
-          <span className={`status-badge status-${player.status}`}>
-            {player.status}
-          </span>
-        </div>
-
-        <div className="player-meta">
-          <div className="meta-item">
-            <Gamepad2 className="meta-icon" />
-            <span className="meta-text">{player.games.join(', ')}</span>
-          </div>
-          <div className="meta-item">
-            <Settings className="meta-icon" />
-            <span className="meta-text">{player.platform} • {player.playstyle}</span>
-          </div>
-          <div className="meta-item">
-            <MapPin className="meta-icon" />
-            <span className="meta-text">{player.location}</span>
-          </div>
-        </div>
-
-        <div className="player-actions">
-          <button className="btn btn-primary btn-flex">
-            Connect
-          </button>
-          <button className="btn btn-outline btn-flex">
-            View Profile
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="player-card-compact">
-      <div className="compact-header">
-        <h4 className="compact-name">{player.name}</h4>
-        <span className={`status-badge-small status-${player.status}`}>
-          {player.status}
-        </span>
-      </div>
-      {showRating && (
-        <div className="compact-rating">
-          <Star className="rating-star-small" />
-          <span className="rating-value-small">{player.rating}</span>
-        </div>
-      )}
-      <p className="compact-games">{player.games.join(', ')}</p>
-      <p className="compact-platform">{player.platform} • {player.playstyle}</p>
-      <button className="btn btn-primary btn-full">
-        Connect
-      </button>
+}) => (
+  <div style={{
+    background: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    borderRadius: '0.75rem',
+    padding: '1.5rem',
+    transition: 'all 0.3s ease',
+    color: 'white'
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+    e.currentTarget.style.transform = 'translateY(-2px)';
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+    e.currentTarget.style.transform = 'translateY(0)';
+  }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+      <h3 style={{ fontSize: '1.125rem', fontWeight: '600', margin: 0 }}>{player.name}</h3>
+      <span style={{
+        backgroundColor: player.status === 'online' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(156, 163, 175, 0.2)',
+        color: player.status === 'online' ? '#22c55e' : '#9ca3af',
+        padding: '0.25rem 0.75rem',
+        borderRadius: '9999px',
+        fontSize: '0.75rem',
+        border: `1px solid ${player.status === 'online' ? '#22c55e' : '#9ca3af'}`,
+        fontWeight: '500'
+      }}>
+        {player.status}
+      </span>
     </div>
-  );
-};
+    
+    <p style={{ color: '#d1d5db', marginBottom: '0.75rem', margin: '0 0 0.75rem 0' }}>
+      {player.games.join(', ')}
+    </p>
+    
+    <p style={{ color: '#d1d5db', fontSize: '0.875rem', marginBottom: '1rem', margin: '0 0 1rem 0' }}>
+      {player.platform} • {player.playstyle}
+    </p>
+    
+    {showRating && (
+      <p style={{ color: '#d1d5db', fontSize: '0.875rem', marginBottom: '1rem', margin: '0 0 1rem 0' }}>
+        Rating: {player.rating}/5.0
+      </p>
+    )}
+    
+    <button style={{
+      width: '100%',
+      padding: '0.75rem',
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      color: 'white',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      borderRadius: '0.5rem',
+      cursor: 'pointer',
+      fontWeight: '500',
+      transition: 'all 0.2s ease'
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+    }}>
+      Connect
+    </button>
+  </div>
+);
 
 export default PlayerCard;

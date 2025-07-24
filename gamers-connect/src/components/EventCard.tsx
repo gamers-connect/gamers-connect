@@ -1,20 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Calendar, Clock, MapPin, Users } from 'lucide-react';
-
-interface GameEvent {
-  id: number;
-  title: string;
-  game: string;
-  date: string;
-  time: string;
-  location: string;
-  type: 'Tournament' | 'Meetup' | 'Contest' | 'Scrimmage';
-  attendees: number;
-  maxAttendees: number;
-}
-
+import { GameEvent } from '../app/types';
 interface EventCardProps {
   event: GameEvent;
   isCompact?: boolean;
@@ -23,54 +10,89 @@ interface EventCardProps {
 const EventCard: React.FC<EventCardProps> = ({ event, isCompact = false }) => {
   if (isCompact) {
     return (
-      <div className="event-card-compact">
-        <h4 className="event-title-compact">{event.title}</h4>
-        <p className="event-meta-compact">{event.date} • {event.location}</p>
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        borderRadius: '0.5rem',
+        padding: '1rem',
+        color: 'white',
+        transition: 'all 0.2s ease'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+      }}>
+        <h4 style={{ fontWeight: '600', marginBottom: '0.5rem', fontSize: '0.875rem' }}>{event.title}</h4>
+        <p style={{ fontSize: '0.75rem', color: '#d1d5db', margin: 0 }}>
+          {event.date} • {event.location}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="event-card">
-      <div className="event-card-content">
-        <div className="event-badges">
-          <span className={`event-type event-type-${event.type.toLowerCase()}`}>
-            {event.type}
-          </span>
-          <span className="event-game">
-            {event.game}
-          </span>
-        </div>
-
-        <h3 className="event-title">{event.title}</h3>
-        
-        <div className="event-details">
-          <div className="event-detail-item">
-            <Calendar className="event-icon" />
-            <span className="event-detail-text">{event.date}</span>
-          </div>
-          <div className="event-detail-item">
-            <Clock className="event-icon" />
-            <span className="event-detail-text">{event.time}</span>
-          </div>
-          <div className="event-detail-item">
-            <MapPin className="event-icon" />
-            <span className="event-detail-text">{event.location}</span>
-          </div>
-          <div className="event-detail-item">
-            <Users className="event-icon" />
-            <span className="event-detail-text">{event.attendees}/{event.maxAttendees} attendees</span>
-          </div>
-        </div>
-
-        <div className="event-actions">
-          <button className="btn btn-primary btn-flex">
-            Join Event
-          </button>
-          <button className="btn btn-outline btn-flex">
-            View Details
-          </button>
-        </div>
+    <div style={{
+      background: 'rgba(255, 255, 255, 0.1)',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(255, 255, 255, 0.2)',
+      borderRadius: '0.75rem',
+      padding: '1.5rem',
+      transition: 'all 0.3s ease',
+      color: 'white'
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+      e.currentTarget.style.transform = 'translateY(-2px)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+      e.currentTarget.style.transform = 'translateY(0)';
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>{event.title}</h3>
+        <span style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+          color: 'white',
+          padding: '0.25rem 0.75rem',
+          borderRadius: '9999px',
+          fontSize: '0.75rem',
+          fontWeight: '500'
+        }}>
+          {event.type}
+        </span>
+      </div>
+      
+      <p style={{ color: '#d1d5db', marginBottom: '0.75rem', margin: '0 0 0.75rem 0' }}>{event.game}</p>
+      <p style={{ color: '#d1d5db', fontSize: '0.875rem', marginBottom: '1rem', margin: '0 0 1rem 0' }}>
+        {event.date} at {event.time} • {event.location}
+      </p>
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ color: '#d1d5db', fontSize: '0.875rem' }}>
+          {event.attendees}/{event.maxAttendees} attendees
+        </span>
+        <button style={{
+          padding: '0.5rem 1rem',
+          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+          color: 'white',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          borderRadius: '0.5rem',
+          cursor: 'pointer',
+          fontSize: '0.875rem',
+          fontWeight: '500',
+          transition: 'all 0.2s ease'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+        }}>
+          Join Event
+        </button>
       </div>
     </div>
   );
