@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Ignore VSCode settings files.
+.vscode/
+
+# If on a Mac, ignore DS_Store.
+.DS_Store
+
+# Don't commit the production settings file.
+settings.production.json
+
+
