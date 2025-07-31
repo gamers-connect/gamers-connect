@@ -9,14 +9,12 @@ const updateConnectionSchema = z.object({
   userId: z.string().min(1),
 });
 
-interface RouteParams3 {
-  params: { id: string };
-}
-
-// PUT /api/connections/[id]
-export async function PUT(request: NextRequest, { params }: RouteParams3) {
+export async function PUT(
+  request: NextRequest,
+  context: { params: { id: string } }
+) {
   try {
-    const { id } = params;
+    const { id } = context.params;
     const body = await request.json();
     const { status, userId } = updateConnectionSchema.parse(body);
 
@@ -67,7 +65,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams3) {
       },
     });
 
-    const notificationMessage = status === 'ACCEPTED' 
+    const notificationMessage = status === 'ACCEPTED'
       ? `${existingConnection.toUser.name} accepted your connection request!`
       : `${existingConnection.toUser.name} declined your connection request.`;
 
@@ -91,10 +89,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams3) {
   }
 }
 
-// DELETE /api/connections/[id]
-export async function DELETE(request: NextRequest, { params }: RouteParams3) {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: { id: string } }
+) {
   try {
-    const { id } = params;
+    const { id } = context.params;
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 
@@ -137,10 +137,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams3) {
       });
     }
 
-    return NextResponse.json({ 
-      message: existingConnection.status === 'PENDING' 
-        ? 'Connection request cancelled' 
-        : 'Connection removed successfully' 
+    return NextResponse.json({
+      message: existingConnection.status === 'PENDING'
+        ? 'Connection request cancelled'
+        : 'Connection removed successfully'
     });
   } catch (error) {
     console.error('Error deleting connection:', error);
