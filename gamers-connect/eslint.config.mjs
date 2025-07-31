@@ -10,6 +10,22 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  // Add ignores configuration first
+  {
+    ignores: [
+      ".next/**",
+      "node_modules/**", 
+      ".vercel/**",
+      "out/**",
+      "build/**",
+      "dist/**",
+      "src/generated/**",
+      "*.config.js",
+      "*.config.ts",
+      "next-env.d.ts"
+    ]
+  },
+  // Your existing Next.js ESLint config
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
 
