@@ -5,6 +5,7 @@ import { GameEvent } from '../app/types';
 interface EventCardProps {
   event: GameEvent;
   isCompact?: boolean;
+  onUpdate: () => Promise<void>;
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, isCompact = false }) => {
