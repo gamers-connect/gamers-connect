@@ -1,6 +1,6 @@
 // ===== app/api/sessions/[id]/members/route.ts =====
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '../../../../../src/generated/prisma';
+import { PrismaClient } from '../../../../../generated/prisma';
 import { z } from 'zod';
 
 const prisma2 = new PrismaClient();

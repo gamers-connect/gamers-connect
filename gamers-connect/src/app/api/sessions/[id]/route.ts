@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // app/api/sessions/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '../../../../src/generated/prisma';
+import { PrismaClient } from '../../../../generated/prisma';
 import { z } from 'zod';
 
 const prisma = new PrismaClient();

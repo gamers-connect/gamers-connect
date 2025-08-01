@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { Prisma, PrismaClient } from '../../../src/generated/prisma';
+import { Prisma, PrismaClient } from '../../../generated/prisma';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 

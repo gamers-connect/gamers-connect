@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '../../../../src/generated/prisma';
-import { withAuth, AuthRequest } from '../../../../src/lib/auth';
+import { PrismaClient } from '../../../../generated/prisma';
+import { withAuth, AuthRequest } from '../../../../lib/auth';
 
 const prisma = new PrismaClient();
 
