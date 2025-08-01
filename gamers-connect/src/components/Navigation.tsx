@@ -1,21 +1,22 @@
 "use client";
 
 import React from 'react';
-import { Gamepad2, Bell } from 'lucide-react';
+import { Gamepad2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import NotificationSystem from './NotificationSystem';
 
 interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
   games: string[];
   platforms: string[];
-  playstyle: string;
-  location: string;
-  bio: string;
-  discord: string;
-  notifications: boolean;
-  avatar: string;
+  playstyle?: string;
+  location?: string;
+  bio?: string;
+  discord?: string;
+  notifications?: boolean;
+  avatar?: string;
 }
 
 interface NavigationProps {
@@ -54,15 +55,12 @@ const Navigation: React.FC<NavigationProps> = ({
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        {/* Left side - Logo and Navigation */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Gamepad2 style={{ height: '2rem', width: '2rem', color: 'white' }} />
             <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white', margin: 0 }}>Game Connect</h1>
           </div>
           
-          {/* Navigation Links */}
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <button 
               onClick={() => handlePageChange('dashboard')}
@@ -145,49 +143,10 @@ const Navigation: React.FC<NavigationProps> = ({
           </div>
         </div>
 
-        {/* Right side - User controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {/* Notifications */}
-          <button 
-            onClick={onToggleNotifications}
-            style={{
-              padding: '0.5rem',
-              borderRadius: '0.5rem',
-              border: 'none',
-              background: 'transparent',
-              color: 'white',
-              cursor: 'pointer',
-              position: 'relative',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-            }}
-          >
-            <Bell style={{ height: '1.25rem', width: '1.25rem' }} />
-            <span style={{
-              position: 'absolute',
-              top: '0.25rem',
-              right: '0.25rem',
-              backgroundColor: '#ef4444',
-              color: 'white',
-              borderRadius: '50%',
-              width: '1rem',
-              height: '1rem',
-              fontSize: '0.625rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 'bold'
-            }}>
-              3
-            </span>
-          </button>
+          {/* Use NotificationSystem component */}
+          <NotificationSystem />
           
-          {/* Profile Section */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <button 
               onClick={() => handlePageChange('profile')}
@@ -229,7 +188,6 @@ const Navigation: React.FC<NavigationProps> = ({
               <span style={{ fontWeight: '500', fontSize: '0.875rem' }}>{user?.name}</span>
             </button>
             
-            {/* Logout */}
             <button 
               onClick={onLogout}
               style={{

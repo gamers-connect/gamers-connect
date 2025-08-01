@@ -1,7 +1,9 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { GameEvent } from '../app/types';
+import api from '../lib/api';
 
 interface EventCardProps {
   event: GameEvent;
@@ -10,6 +12,31 @@ interface EventCardProps {
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, isCompact = false, onUpdate }) => {
+  const { user } = useAuth();
+  const [isJoining, setIsJoining] = useState(false);
+
+  const handleJoinEvent = async () => {
+    if (!user) {
+      console.log('User must be logged in to join event');
+      return;
+    }
+
+    setIsJoining(true);
+    try {
+      await api.events.join(event.id.toString(), user.id);
+      
+      console.log('Successfully joined event:', event.id);
+      
+      if (onUpdate) {
+        await onUpdate();
+      }
+    } catch (error) {
+      console.error('Failed to join event:', error);
+    } finally {
+      setIsJoining(false);
+    }
+  };
+
   if (isCompact) {
     return (
       <div style={{
@@ -34,16 +61,6 @@ const EventCard: React.FC<EventCardProps> = ({ event, isCompact = false, onUpdat
       </div>
     );
   }
-
-  const handleJoinEvent = async () => {
-    // Handle join event logic here
-    console.log('Joining event:', event.id);
-    
-    // Call onUpdate if provided
-    if (onUpdate) {
-      await onUpdate();
-    }
-  };
 
   return (
     <div style={{
@@ -88,24 +105,30 @@ const EventCard: React.FC<EventCardProps> = ({ event, isCompact = false, onUpdat
         </span>
         <button 
           onClick={handleJoinEvent}
+          disabled={isJoining}
           style={{
             padding: '0.5rem 1rem',
             backgroundColor: 'rgba(255, 255, 255, 0.2)',
             color: 'white',
             border: '1px solid rgba(255, 255, 255, 0.3)',
             borderRadius: '0.5rem',
-            cursor: 'pointer',
+            cursor: isJoining ? 'not-allowed' : 'pointer',
             fontSize: '0.875rem',
             fontWeight: '500',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
+            opacity: isJoining ? 0.7 : 1
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+            if (!isJoining) {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+            }
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+            if (!isJoining) {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+            }
           }}>
-          Join Event
+          {isJoining ? 'Joining...' : 'Join Event'}
         </button>
       </div>
     </div>

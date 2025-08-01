@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState } from 'react';
 import { X, Lock, Globe } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import api from '@/lib/api';
 
 interface SessionCreationModelProps {
   isOpen: boolean;
@@ -14,6 +18,8 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
   onClose, 
   onCreateSession 
 }) => {
+  const router = useRouter();
+  const { user } = useAuth();
   const [sessionData, setSessionData] = useState({
     title: '',
     game: '',
@@ -25,74 +31,185 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
     platform: '',
     skillLevel: 'Any'
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const games = ['Valorant', 'Overwatch 2', 'League of Legends', 'Apex Legends', 'Minecraft'];
   const platforms = ['PC', 'PlayStation', 'Xbox', 'Nintendo Switch', 'Mobile'];
   const skillLevels = ['Beginner', 'Intermediate', 'Advanced', 'Any'];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onCreateSession({
-      ...sessionData,
-      id: Date.now(),
-      host: 'Current User',
-      players: 1
-    });
-    setSessionData({
-      title: '',
-      game: '',
-      description: '',
-      date: '',
-      time: '',
-      maxPlayers: 4,
-      isPrivate: false,
-      platform: '',
-      skillLevel: 'Any'
-    });
-    onClose();
+    
+    if (!user) {
+      setError('You must be logged in to create a session');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const newSessionData = {
+        title: sessionData.title,
+        game: sessionData.game,
+        description: sessionData.description,
+        date: sessionData.date,
+        time: sessionData.time,
+        maxPlayers: sessionData.maxPlayers,
+        isPrivate: sessionData.isPrivate,
+        platform: sessionData.platform,
+        skillLevel: sessionData.skillLevel,
+        hostId: user.id // Add hostId from authenticated user
+      };
+
+      // Fix: Use the correct API method signature from your api.ts
+      const response = await api.sessions.create(newSessionData);
+      
+      // Call the onCreateSession callback with the created session
+      onCreateSession(response);
+      
+      // Reset form
+      setSessionData({
+        title: '',
+        game: '',
+        description: '',
+        date: '',
+        time: '',
+        maxPlayers: 4,
+        isPrivate: false,
+        platform: '',
+        skillLevel: 'Any'
+      });
+      
+      // Close the modal
+      onClose();
+      
+      // Optionally redirect to the new session page
+      // router.push(`/sessions/${response.id}`);
+    } catch (err: any) {
+      console.error('Failed to create session:', err);
+      setError(err.message || 'Failed to create session. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (field: string, value: string | number | boolean) => {
+    setSessionData(prev => ({ ...prev, [field]: value }));
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="session-modal-overlay">
-      <div className="session-modal-container">
-        <div className="session-modal-content">
-          <div className="session-modal-header">
-            <h2 className="session-modal-title">Create Gaming Session</h2>
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '1rem'
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '0.75rem',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        maxWidth: '32rem',
+        width: '100%',
+        maxHeight: '90vh',
+        overflowY: 'auto'
+      }}>
+        <div style={{ padding: '1.5rem' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '1.5rem'
+          }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1f2937', margin: 0 }}>
+              Create Gaming Session
+            </h2>
             <button 
               onClick={onClose}
-              className="modal-close-btn"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '0.25rem',
+                color: '#9ca3af'
+              }}
             >
-              <X className="close-icon" />
+              <X style={{ height: '1.5rem', width: '1.5rem' }} />
             </button>
           </div>
 
-          <div className="session-form">
-            <div className="form-field">
-              <label className="form-label">
+          {error && (
+            <div style={{
+              backgroundColor: '#fee2e2',
+              color: '#ef4444',
+              padding: '0.75rem',
+              borderRadius: '0.5rem',
+              marginBottom: '1rem',
+              fontSize: '0.875rem'
+            }}>
+              {error}
+            </div>
+          )}
+
+          <div>
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem', 
+                fontSize: '0.875rem', 
+                fontWeight: '500', 
+                color: '#374151' 
+              }}>
                 Session Title *
               </label>
               <input
                 type="text"
                 required
                 value={sessionData.title}
-                onChange={(e) => setSessionData({ ...sessionData, title: e.target.value })}
-                className="form-input"
+                onChange={(e) => handleChange('title', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  fontSize: '1rem',
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                }}
                 placeholder="e.g., Ranked Valorant Grind"
               />
             </div>
 
-            <div className="form-row">
-              <div className="form-field">
-                <label className="form-label">
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '0.5rem', 
+                  fontSize: '0.875rem', 
+                  fontWeight: '500', 
+                  color: '#374151' 
+                }}>
                   Game *
                 </label>
                 <select
                   required
                   value={sessionData.game}
-                  onChange={(e) => setSessionData({ ...sessionData, game: e.target.value })}
-                  className="form-select"
+                  onChange={(e) => handleChange('game', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    fontSize: '1rem',
+                    backgroundColor: 'white',
+                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                  }}
                 >
                   <option value="">Select a game</option>
                   {games.map(game => (
@@ -101,15 +218,29 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                 </select>
               </div>
 
-              <div className="form-field">
-                <label className="form-label">
+              <div style={{ flex: 1 }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '0.5rem', 
+                  fontSize: '0.875rem', 
+                  fontWeight: '500', 
+                  color: '#374151' 
+                }}>
                   Platform *
                 </label>
                 <select
                   required
                   value={sessionData.platform}
-                  onChange={(e) => setSessionData({ ...sessionData, platform: e.target.value })}
-                  className="form-select"
+                  onChange={(e) => handleChange('platform', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    fontSize: '1rem',
+                    backgroundColor: 'white',
+                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                  }}
                 >
                   <option value="">Select platform</option>
                   {platforms.map(platform => (
@@ -119,35 +250,67 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
               </div>
             </div>
 
-            <div className="form-row-three">
-              <div className="form-field">
-                <label className="form-label">
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '0.5rem', 
+                  fontSize: '0.875rem', 
+                  fontWeight: '500', 
+                  color: '#374151' 
+                }}>
                   Date *
                 </label>
                 <input
                   type="date"
                   required
                   value={sessionData.date}
-                  onChange={(e) => setSessionData({ ...sessionData, date: e.target.value })}
-                  className="form-input"
+                  onChange={(e) => handleChange('date', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    fontSize: '1rem',
+                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                  }}
                 />
               </div>
 
-              <div className="form-field">
-                <label className="form-label">
+              <div style={{ flex: 1 }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '0.5rem', 
+                  fontSize: '0.875rem', 
+                  fontWeight: '500', 
+                  color: '#374151' 
+                }}>
                   Time *
                 </label>
                 <input
                   type="time"
                   required
                   value={sessionData.time}
-                  onChange={(e) => setSessionData({ ...sessionData, time: e.target.value })}
-                  className="form-input"
+                  onChange={(e) => handleChange('time', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    fontSize: '1rem',
+                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                  }}
                 />
               </div>
 
-              <div className="form-field">
-                <label className="form-label">
+              <div style={{ flex: 1 }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '0.5rem', 
+                  fontSize: '0.875rem', 
+                  fontWeight: '500', 
+                  color: '#374151' 
+                }}>
                   Max Players
                 </label>
                 <input
@@ -155,20 +318,41 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                   min="2"
                   max="20"
                   value={sessionData.maxPlayers}
-                  onChange={(e) => setSessionData({ ...sessionData, maxPlayers: parseInt(e.target.value) })}
-                  className="form-input"
+                  onChange={(e) => handleChange('maxPlayers', parseInt(e.target.value) || 4)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    fontSize: '1rem',
+                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                  }}
                 />
               </div>
             </div>
 
-            <div className="form-field">
-              <label className="form-label">
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem', 
+                fontSize: '0.875rem', 
+                fontWeight: '500', 
+                color: '#374151' 
+              }}>
                 Skill Level
               </label>
               <select
                 value={sessionData.skillLevel}
-                onChange={(e) => setSessionData({ ...sessionData, skillLevel: e.target.value })}
-                className="form-select"
+                onChange={(e) => handleChange('skillLevel', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  fontSize: '1rem',
+                  backgroundColor: 'white',
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                }}
               >
                 {skillLevels.map(level => (
                   <option key={level} value={level}>{level}</option>
@@ -176,49 +360,94 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
               </select>
             </div>
 
-            <div className="form-field">
-              <label className="form-label">
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem', 
+                fontSize: '0.875rem', 
+                fontWeight: '500', 
+                color: '#374151' 
+              }}>
                 Description
               </label>
               <textarea
                 rows={3}
                 value={sessionData.description}
-                onChange={(e) => setSessionData({ ...sessionData, description: e.target.value })}
-                className="form-textarea"
+                onChange={(e) => handleChange('description', e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  fontSize: '1rem',
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                  resize: 'vertical',
+                  fontFamily: 'inherit'
+                }}
                 placeholder="Tell other players what to expect..."
               />
             </div>
 
-            <div className="privacy-setting">
-              <div className="privacy-checkbox">
+            <div style={{ marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
                 <input
                   type="checkbox"
                   id="private"
                   checked={sessionData.isPrivate}
-                  onChange={(e) => setSessionData({ ...sessionData, isPrivate: e.target.checked })}
-                  className="checkbox-input"
+                  onChange={(e) => handleChange('isPrivate', e.target.checked)}
+                  style={{ 
+                    height: '1rem', 
+                    width: '1rem', 
+                    borderRadius: '0.25rem', 
+                    border: '1px solid #d1d5db', 
+                    color: '#3b82f6', 
+                    marginRight: '0.75rem' 
+                  }}
                 />
-                <label htmlFor="private" className="privacy-label">
-                  {sessionData.isPrivate ? <Lock className="privacy-icon" /> : <Globe className="privacy-icon" />}
+                <label htmlFor="private" style={{ display: 'flex', alignItems: 'center', color: '#374151' }}>
+                  {sessionData.isPrivate ? 
+                    <Lock style={{ height: '1rem', width: '1rem', marginRight: '0.5rem', color: '#6b7280' }} /> : 
+                    <Globe style={{ height: '1rem', width: '1rem', marginRight: '0.5rem', color: '#6b7280' }} />
+                  }
                   <span>{sessionData.isPrivate ? 'Private Session' : 'Public Session'}</span>
                 </label>
               </div>
             </div>
 
-            <div className="form-actions">
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
               <button
                 type="button"
                 onClick={onClose}
-                className="btn btn-cancel"
+                disabled={loading}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  backgroundColor: 'white',
+                  color: '#374151',
+                  fontWeight: '500',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.7 : 1
+                }}
               >
                 Cancel
               </button>
               <button
-                type="button"
+                type="button" // Changed from "submit" to "button" since we're handling submit in the form onSubmit
                 onClick={handleSubmit}
-                className="btn btn-create"
+                disabled={loading}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  fontWeight: '500',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.7 : 1
+                }}
               >
-                Create Session
+                {loading ? 'Creating...' : 'Create Session'}
               </button>
             </div>
           </div>

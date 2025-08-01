@@ -2,12 +2,14 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'; // Add this import
 import api from '../lib/api';
 
 interface User {
   id: string;
   email: string;
   name: string;
+  username: string;
   avatar?: string;
   games: string[];
   platforms: string[];
@@ -16,13 +18,15 @@ interface User {
   bio?: string;
   discord?: string;
   status: 'ONLINE' | 'AWAY' | 'OFFLINE';
+  createdAt?: string;
+  notifications?: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: () => Promise<void>; // This needs to be fixed
   updateProfile: (userData: Partial<User>) => Promise<void>;
   loading: boolean;
   isAuthenticated: boolean;
@@ -32,6 +36,7 @@ interface RegisterData {
   email: string;
   password: string;
   name: string;
+  username: string;
   avatar?: string;
   games?: string[];
   platforms?: string[];
@@ -47,6 +52,7 @@ const normalizeUserProfile = (profile: any): User => {
     id: profile.id,
     email: profile.email,
     name: profile.name,
+    username: profile.username || '',
     avatar: profile.avatar,
     games: profile.games || [],
     platforms: profile.platforms || [],
@@ -54,15 +60,18 @@ const normalizeUserProfile = (profile: any): User => {
     location: profile.location,
     bio: profile.bio,
     discord: profile.discord,
-    status: profile.status === 'ONLINE' || profile.status === 'AWAY' || profile.status === 'OFFLINE' 
+    status: (profile.status === 'ONLINE' || profile.status === 'AWAY' || profile.status === 'OFFLINE') 
       ? profile.status 
-      : 'OFFLINE'
+      : 'OFFLINE',
+    createdAt: profile.createdAt || new Date().toISOString(),
+    notifications: profile.notifications ?? true,
   };
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter(); // Add this
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -89,6 +98,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       const response = await api.auth.login({ email, password });
+      localStorage.setItem('auth_token', response.token); // Make sure token is stored
+      api.setToken(response.token);
       const normalizedUser = normalizeUserProfile(response.user);
       setUser(normalizedUser);
     } catch (error) {
@@ -100,6 +111,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (userData: RegisterData) => {
     try {
       const response = await api.auth.register(userData);
+      localStorage.setItem('auth_token', response.token); // Make sure token is stored
+      api.setToken(response.token);
       const normalizedUser = normalizeUserProfile(response.user);
       setUser(normalizedUser);
     } catch (error) {
@@ -110,11 +123,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
+      // Call your backend logout endpoint
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        await fetch('/api/auth/signout', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }).catch(() => {
+          // Ignore errors in logout API call
+        });
+      }
+      
+      // Call api.auth.logout() if it does actual backend work
       await api.auth.logout();
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Logout API error:', error);
     } finally {
+      // Always clear local auth state
+      localStorage.removeItem('auth_token');
+      api.clearToken();
       setUser(null);
+      
+      // Redirect to home page
+      router.push('/');
+      router.refresh(); // Refresh to update auth state
     }
   };
 

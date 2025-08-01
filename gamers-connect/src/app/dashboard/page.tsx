@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import React, { useState, useEffect } from 'react';
 import { Users, Gamepad2, Calendar } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -22,31 +21,26 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       if (!user) return;
-
       try {
         setLoading(true);
-
         // Fetch recommended players (based on user's games)
         const playersResponse = await api.users.getAll({
           limit: 4,
           game: user.games?.[0], // Filter by user's primary game
         });
         setRecommendedPlayers(playersResponse.users.filter(p => p.id !== user.id));
-
         // Fetch upcoming events
         const eventsResponse = await api.events.getAll({
           upcoming: true,
           limit: 3,
         });
         setUpcomingEvents(eventsResponse.events);
-
         // Fetch user's gaming sessions
         const sessionsResponse = await api.sessions.getAll({
           userId: user.id,
           limit: 2,
         });
         setUserSessions(sessionsResponse.sessions);
-
       } catch (error: any) {
         console.error('Error fetching dashboard data:', error);
         setError('Failed to load dashboard data');
@@ -54,7 +48,6 @@ const Dashboard: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchDashboardData();
   }, [user]);
 
@@ -130,7 +123,6 @@ const Dashboard: React.FC = () => {
         </h2>
         <p style={{ color: '#d1d5db' }}>Here&apos;s what&apos;s happening in your gaming community</p>
       </div>
-
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {/* Recommended Players Card */}
@@ -172,7 +164,6 @@ const Dashboard: React.FC = () => {
               </div>
             )}
           </div>
-
           {/* Gaming Sessions Card */}
           <div style={{
             background: 'rgba(255, 255, 255, 0.1)',
@@ -243,10 +234,8 @@ const Dashboard: React.FC = () => {
             )}
           </div>
         </div>
-
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <QuickActions onFindPlayers={handleFindPlayers} />
-
           {/* Upcoming Events Card */}
           <div style={{
             background: 'rgba(255, 255, 255, 0.1)',
