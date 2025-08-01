@@ -10,13 +10,13 @@ const joinSessionSchema = z.object({
 });
 
 interface RouteParams2 {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // POST /api/sessions/[id]/members
 export async function POST(request: NextRequest, { params }: RouteParams2) {
   try {
-    const { id: sessionId } = params;
+    const { id: sessionId } = await params;
     const body = await request.json();
     const { userId } = joinSessionSchema.parse(body);
 
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest, { params }: RouteParams2) {
 // DELETE /api/sessions/[id]/members
 export async function DELETE(request: NextRequest, { params }: RouteParams2) {
   try {
-    const { id: sessionId } = params;
+    const { id: sessionId } = await params;
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const hostId = searchParams.get('hostId');

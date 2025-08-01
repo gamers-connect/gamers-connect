@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
@@ -40,6 +41,25 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper function to normalize user profile data
+const normalizeUserProfile = (profile: any): User => {
+  return {
+    id: profile.id,
+    email: profile.email,
+    name: profile.name,
+    avatar: profile.avatar,
+    games: profile.games || [],
+    platforms: profile.platforms || [],
+    playstyle: profile.playstyle,
+    location: profile.location,
+    bio: profile.bio,
+    discord: profile.discord,
+    status: profile.status === 'ONLINE' || profile.status === 'AWAY' || profile.status === 'OFFLINE' 
+      ? profile.status 
+      : 'OFFLINE'
+  };
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,7 +71,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (token) {
           api.setToken(token);
           const profile = await api.auth.getProfile();
-          setUser(profile);
+          const normalizedUser = normalizeUserProfile(profile);
+          setUser(normalizedUser);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -68,7 +89,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       const response = await api.auth.login({ email, password });
-      setUser(response.user);
+      const normalizedUser = normalizeUserProfile(response.user);
+      setUser(normalizedUser);
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -78,7 +100,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (userData: RegisterData) => {
     try {
       const response = await api.auth.register(userData);
-      setUser(response.user);
+      const normalizedUser = normalizeUserProfile(response.user);
+      setUser(normalizedUser);
     } catch (error) {
       console.error('Registration failed:', error);
       throw error;
@@ -100,7 +123,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     try {
       const updatedUser = await api.users.update(user.id, userData);
-      setUser(updatedUser);
+      const normalizedUser = normalizeUserProfile(updatedUser);
+      setUser(normalizedUser);
     } catch (error) {
       console.error('Profile update failed:', error);
       throw error;

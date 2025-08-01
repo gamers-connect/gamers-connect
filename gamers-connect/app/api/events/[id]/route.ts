@@ -20,7 +20,7 @@ const updateEventSchema = z.object({
 });
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // GET /api/events/[id] - Get specific event
@@ -29,7 +29,7 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const event = await prisma.event.findUnique({
       where: { id },
@@ -87,7 +87,7 @@ export async function PUT(
   { params }: RouteParams
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const validatedData = updateEventSchema.parse(body);
 
@@ -169,7 +169,7 @@ export async function DELETE(
   { params }: RouteParams
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Check if event exists
     const existingEvent = await prisma.event.findUnique({

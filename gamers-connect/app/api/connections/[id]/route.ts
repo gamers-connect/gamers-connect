@@ -11,10 +11,10 @@ const updateConnectionSchema = z.object({
 
 export async function PUT(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
     const body = await request.json();
     const { status, userId } = updateConnectionSchema.parse(body);
 
@@ -91,10 +91,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 

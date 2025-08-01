@@ -22,13 +22,13 @@ const updateSessionSchema = z.object({
 });
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // GET /api/sessions/[id]
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PUT /api/sessions/[id]
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const validatedData = updateSessionSchema.parse(body);
     const { hostId } = body;
@@ -172,7 +172,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE /api/sessions/[id]
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const hostId = searchParams.get('hostId');
 

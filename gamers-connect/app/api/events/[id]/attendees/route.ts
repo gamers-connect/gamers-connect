@@ -9,7 +9,7 @@ const joinEventSchema = z.object({
 });
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // POST /api/events/[id]/attendees - Join event
@@ -18,7 +18,7 @@ export async function POST(
   { params }: RouteParams
 ) {
   try {
-    const { id: eventId } = params;
+    const { id: eventId } = await params;
     const body = await request.json();
     const { userId } = joinEventSchema.parse(body);
 
@@ -135,7 +135,7 @@ export async function DELETE(
   { params }: RouteParams
 ) {
   try {
-    const { id: eventId } = params;
+    const { id: eventId } = await params;
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 
@@ -175,7 +175,6 @@ export async function DELETE(
       );
     }
 
-    // Remove attendee
     await prisma.eventAttendee.delete({
       where: {
         userId_eventId: {

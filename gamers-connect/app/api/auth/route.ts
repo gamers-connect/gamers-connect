@@ -206,7 +206,7 @@ export async function PUT(request: NextRequest) {
 // DELETE /api/auth - Logout user (with authentication)
 export const DELETE = withAuth(async (request: AuthRequest) => {
   try {
-    const user = request.user!; // We know user exists because of withAuth
+    const user = request.user!;
 
     // Update user status to offline
     await prisma.user.update({

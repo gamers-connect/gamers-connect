@@ -2,13 +2,14 @@
 
 import React from 'react';
 import { GameEvent } from '../app/types';
+
 interface EventCardProps {
   event: GameEvent;
   isCompact?: boolean;
-  onUpdate: () => Promise<void>;
+  onUpdate?: () => Promise<void>;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, isCompact = false }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, isCompact = false, onUpdate }) => {
   if (isCompact) {
     return (
       <div style={{
@@ -33,6 +34,16 @@ const EventCard: React.FC<EventCardProps> = ({ event, isCompact = false }) => {
       </div>
     );
   }
+
+  const handleJoinEvent = async () => {
+    // Handle join event logic here
+    console.log('Joining event:', event.id);
+    
+    // Call onUpdate if provided
+    if (onUpdate) {
+      await onUpdate();
+    }
+  };
 
   return (
     <div style={{
@@ -75,23 +86,25 @@ const EventCard: React.FC<EventCardProps> = ({ event, isCompact = false }) => {
         <span style={{ color: '#d1d5db', fontSize: '0.875rem' }}>
           {event.attendees}/{event.maxAttendees} attendees
         </span>
-        <button style={{
-          padding: '0.5rem 1rem',
-          backgroundColor: 'rgba(255, 255, 255, 0.2)',
-          color: 'white',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          borderRadius: '0.5rem',
-          cursor: 'pointer',
-          fontSize: '0.875rem',
-          fontWeight: '500',
-          transition: 'all 0.2s ease'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-        }}>
+        <button 
+          onClick={handleJoinEvent}
+          style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '0.5rem',
+            cursor: 'pointer',
+            fontSize: '0.875rem',
+            fontWeight: '500',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+          }}>
           Join Event
         </button>
       </div>

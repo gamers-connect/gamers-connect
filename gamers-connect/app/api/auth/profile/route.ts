@@ -121,7 +121,6 @@ export const GET = withAuth(async (request: AuthRequest) => {
       upcomingEvents: user.eventAttendees.map(attendee => attendee.event),
     };
 
-    // Remove the _count field from the response
     delete (profile as any)._count;
     delete (profile as any).hostedSessions;
     delete (profile as any).sessionMembers;
