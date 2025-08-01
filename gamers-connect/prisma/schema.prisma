@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -12,4 +9,244 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // Need passwords   
+  name      String
+  avatar    String?
+  bio       String?
+  discord   String?
+  location  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Profile fields
+  games     String[]
+  platforms String[]
+  playstyle String?
+  
+  // Status
+  status       UserStatus @default(OFFLINE)
+  lastActive   DateTime   @default(now())
+  isActive     Boolean    @default(true)
+  isSuspended  Boolean    @default(false)
+  isBanned     Boolean    @default(false)
+  
+  // Relationships
+  hostedSessions    Session[]           @relation("SessionHost")
+  sessionMembers    SessionMember[]
+  eventAttendees    EventAttendee[]
+  notifications     Notification[]
+  sentConnections   Connection[]        @relation("ConnectionFrom")
+  receivedConnections Connection[]      @relation("ConnectionTo")
+  forumPosts        ForumPost[]
+  reports           Report[]            @relation("ReportedBy")
+  reportedContent   Report[]            @relation("ReportedUser")
+
+  @@map("users")
+}
+
+model Session {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  game        String
+  platform    String
+  skillLevel  String?
+  maxPlayers  Int         @default(4)
+  isPrivate   Boolean     @default(false)
+  date        DateTime
+  time        String
+  status      SessionStatus @default(ACTIVE)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relationships
+  hostId      String
+  host        User            @relation("SessionHost", fields: [hostId], references: [id], onDelete: Cascade)
+  members     SessionMember[]
+
+  @@map("sessions")
+}
+
+model SessionMember {
+  id        String   @id @default(cuid())
+  joinedAt  DateTime @default(now())
+  
+  // Relationships
+  userId    String
+  sessionId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sessionId])
+  @@map("session_members")
+}
+
+model Event {
+  id           String        @id @default(cuid())
+  title        String
+  description  String?
+  game         String
+  date         DateTime
+  time         String
+  location     String
+  type         EventType
+  maxAttendees Int
+  status       EventStatus   @default(UPCOMING)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relationships
+  attendees    EventAttendee[]
+
+  @@map("events")
+}
+
+model EventAttendee {
+  id       String   @id @default(cuid())
+  joinedAt DateTime @default(now())
+  
+  // Relationships
+  userId   String
+  eventId  String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event    Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@map("event_attendees")
+}
+
+model Connection {
+  id        String           @id @default(cuid())
+  message   String?
+  status    ConnectionStatus @default(PENDING)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  // Relationships
+  fromUserId String
+  toUserId   String
+  fromUser   User   @relation("ConnectionFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser     User   @relation("ConnectionTo", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@unique([fromUserId, toUserId])
+  @@map("connections")
+}
+
+model ForumPost {
+  id        String    @id @default(cuid())
+  title     String
+  content   String
+  game      String?
+  isPinned  Boolean   @default(false)
+  isHot     Boolean   @default(false)
+  views     Int       @default(0)
+  replies   Int       @default(0)
+  status    PostStatus @default(APPROVED)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relationships
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  reports   Report[]
+
+  @@map("forum_posts")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  actionUrl String?
+  createdAt DateTime         @default(now())
+
+  // Relationships
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Report {
+  id        String     @id @default(cuid())
+  reason    String
+  details   String?
+  status    ReportStatus @default(PENDING)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relationships - who reported
+  reportedById String
+  reportedBy   User   @relation("ReportedBy", fields: [reportedById], references: [id], onDelete: Cascade)
+  
+  // What was reported (user or post)
+  reportedUserId String?
+  reportedUser   User?      @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  
+  reportedPostId String?
+  reportedPost   ForumPost? @relation(fields: [reportedPostId], references: [id], onDelete: Cascade)
+
+  @@map("reports")
+}
+
+// Enums
+enum UserStatus {
+  ONLINE
+  AWAY
+  OFFLINE
+}
+
+enum SessionStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum EventType {
+  TOURNAMENT
+  MEETUP
+  CONTEST
+  SCRIMMAGE
+}
+
+enum EventStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum PostStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum NotificationType {
+  PLAYER_MATCH
+  EVENT
+  SESSION
+  MESSAGE
+  ACHIEVEMENT
+  CONNECTION_REQUEST
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
 }

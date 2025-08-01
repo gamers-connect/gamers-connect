@@ -1,40 +1,62 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, Gamepad2, Calendar } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import PlayerCard from '../../components/PlayerCard';
 import EventCard from '../../components/EventCard';
 import QuickActions from '../../components/QuickActions';
-
-// Mock data - move this to a separate file later if needed
-const mockPlayers = [
-  { id: 1, name: 'Alex Chen', games: ['Valorant', 'Overwatch 2'], platform: 'PC', playstyle: 'Competitive', location: 'UH Mānoa Campus', status: 'online' as const, rating: 4.8 },
-  { id: 2, name: 'Sarah Kim', games: ['Super Smash Bros', 'Minecraft'], platform: 'Nintendo Switch', playstyle: 'Casual', location: 'UH Mānoa Campus', status: 'online' as const, rating: 4.9 },
-  { id: 3, name: 'Marcus Johnson', games: ['Apex Legends', 'Rocket League'], platform: 'PC', playstyle: 'Competitive', location: 'UH West Oahu', status: 'away' as const, rating: 4.7 },
-  { id: 4, name: 'Luna Patel', games: ['League of Legends', 'Valorant'], platform: 'PC', playstyle: 'Competitive', location: 'UH Mānoa Campus', status: 'online' as const, rating: 4.6 }
-];
-
-const mockEvents = [
-  { id: 1, title: 'Valorant Tournament', game: 'Valorant', date: '2025-07-25', time: '18:00', location: 'UH iLab', type: 'Tournament' as const, attendees: 32, maxAttendees: 64 },
-  { id: 2, title: 'Smash Bros Meetup', game: 'Super Smash Bros', date: '2025-07-22', time: '19:00', location: 'Campus Center', type: 'Meetup' as const, attendees: 12, maxAttendees: 20 },
-  { id: 3, title: 'Minecraft Build Contest', game: 'Minecraft', date: '2025-07-28', time: '15:00', location: 'Online', type: 'Contest' as const, attendees: 8, maxAttendees: 15 }
-];
-
-const mockSessions = [
-  { id: 1, title: 'Ranked Valorant Grind', game: 'Valorant', host: 'Alex Chen', date: '2025-07-20', time: '21:00', players: 3, maxPlayers: 5 },
-  { id: 2, title: 'Chill Minecraft Building', game: 'Minecraft', host: 'Sarah Kim', date: '2025-07-21', time: '16:00', players: 2, maxPlayers: 6 }
-];
-
-// Mock user
-const mockUser = {
-  id: 1,
-  name: 'John Doe',
-  email: 'john@hawaii.edu'
-};
+import { useAuth } from '../../contexts/AuthContext';
+import api, { UserProfile, Event, Session} from '../../lib/api';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
+  const { user } = useAuth();
+  const [recommendedPlayers, setRecommendedPlayers] = useState<UserProfile[]>([]);
+  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
+  const [userSessions, setUserSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!user) return;
+
+      try {
+        setLoading(true);
+
+        // Fetch recommended players (based on user's games)
+        const playersResponse = await api.users.getAll({
+          limit: 4,
+          game: user.games?.[0], // Filter by user's primary game
+        });
+        setRecommendedPlayers(playersResponse.users.filter(p => p.id !== user.id));
+
+        // Fetch upcoming events
+        const eventsResponse = await api.events.getAll({
+          upcoming: true,
+          limit: 3,
+        });
+        setUpcomingEvents(eventsResponse.events);
+
+        // Fetch user's gaming sessions
+        const sessionsResponse = await api.sessions.getAll({
+          userId: user.id,
+          limit: 2,
+        });
+        setUserSessions(sessionsResponse.sessions);
+
+      } catch (error: any) {
+        console.error('Error fetching dashboard data:', error);
+        setError('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [user]);
 
   const handleFindPlayers = () => {
     router.push('/players');
@@ -44,11 +66,67 @@ const Dashboard: React.FC = () => {
     router.push('/events');
   };
 
+  const handleEventUpdate = async () => {
+    // Refresh events data when user joins/leaves an event
+    try {
+      const eventsResponse = await api.events.getAll({
+        upcoming: true,
+        limit: 3,
+      });
+      setUpcomingEvents(eventsResponse.events);
+    } catch (error) {
+      console.error('Error refreshing events:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div style={{ 
+        maxWidth: '1200px', 
+        margin: '0 auto', 
+        padding: '2rem 1.5rem',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '50vh'
+      }}>
+        <div style={{ color: 'white', fontSize: '1.2rem' }}>Loading dashboard...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ 
+        maxWidth: '1200px', 
+        margin: '0 auto', 
+        padding: '2rem 1.5rem',
+        textAlign: 'center'
+      }}>
+        <div style={{ color: '#ef4444', fontSize: '1.1rem' }}>{error}</div>
+        <button 
+          onClick={() => window.location.reload()} 
+          style={{
+            marginTop: '1rem',
+            padding: '0.5rem 1rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '0.5rem',
+            cursor: 'pointer'
+          }}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1.5rem' }}>
       <div style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'white', marginBottom: '0.5rem' }}>
-          Welcome back, {mockUser.name}!
+          Welcome back, {user?.name}!
         </h2>
         <p style={{ color: '#d1d5db' }}>Here&apos;s what&apos;s happening in your gaming community</p>
       </div>
@@ -74,12 +152,25 @@ const Dashboard: React.FC = () => {
             }}>
               <Users style={{ height: '1.25rem', width: '1.25rem', color: 'white' }} />
               Recommended Players
+              {user?.games?.[0] && (
+                <span style={{ fontSize: '0.875rem', color: '#d1d5db' }}>
+                  ({user.games[0]} players)
+                </span>
+              )}
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              {mockPlayers.slice(0, 4).map(player => (
-                <PlayerCard key={player.id} player={player} />
-              ))}
-            </div>
+            {recommendedPlayers.length > 0 ? (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                {recommendedPlayers.slice(0, 4).map((player: any) => (
+                  <PlayerCard key={player.id} player={player} />
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', color: '#9ca3af', padding: '2rem' }}>
+                <Users style={{ height: '3rem', width: '3rem', margin: '0 auto 1rem', opacity: 0.5 }} />
+                <p>No players found matching your games.</p>
+                <p style={{ fontSize: '0.875rem' }}>Try updating your game preferences!</p>
+              </div>
+            )}
           </div>
 
           {/* Gaming Sessions Card */}
@@ -102,46 +193,54 @@ const Dashboard: React.FC = () => {
               <Gamepad2 style={{ height: '1.25rem', width: '1.25rem', color: 'white' }} />
               Your Gaming Sessions
             </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {mockSessions.map(session => (
-                <div key={session.id} style={{ 
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '0.5rem', 
-                  padding: '1rem' 
-                }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'flex-start',
-                    marginBottom: '0.5rem'
+            {userSessions.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {userSessions.map((session: any) => (
+                  <div key={session.id} style={{ 
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '0.5rem', 
+                    padding: '1rem' 
                   }}>
-                    <h4 style={{ fontWeight: '600', color: 'white' }}>{session.title}</h4>
-                    <span style={{ 
-                      fontSize: '0.75rem',
-                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                      color: 'white',
-                      padding: '0.25rem 0.5rem',
-                      borderRadius: '9999px'
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'flex-start',
+                      marginBottom: '0.5rem'
                     }}>
-                      {session.game}
-                    </span>
+                      <h4 style={{ fontWeight: '600', color: 'white' }}>{session.title}</h4>
+                      <span style={{ 
+                        fontSize: '0.75rem',
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        color: 'white',
+                        padding: '0.25rem 0.5rem',
+                        borderRadius: '9999px'
+                      }}>
+                        {session.game}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: '0.875rem', color: '#d1d5db', marginBottom: '0.5rem' }}>
+                      Hosted by {session.host.name}
+                    </p>
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between',
+                      fontSize: '0.875rem',
+                      color: '#d1d5db'
+                    }}>
+                      <span>{new Date(session.date).toLocaleDateString()} at {session.time}</span>
+                      <span>{session.memberCount}/{session.maxPlayers} players</span>
+                    </div>
                   </div>
-                  <p style={{ fontSize: '0.875rem', color: '#d1d5db', marginBottom: '0.5rem' }}>
-                    Hosted by {session.host}
-                  </p>
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between',
-                    fontSize: '0.875rem',
-                    color: '#d1d5db'
-                  }}>
-                    <span>{session.date} at {session.time}</span>
-                    <span>{session.players}/{session.maxPlayers} players</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', color: '#9ca3af', padding: '2rem' }}>
+                <Gamepad2 style={{ height: '3rem', width: '3rem', margin: '0 auto 1rem', opacity: 0.5 }} />
+                <p>No active gaming sessions.</p>
+                <p style={{ fontSize: '0.875rem' }}>Create one to get started!</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -168,11 +267,23 @@ const Dashboard: React.FC = () => {
               <Calendar style={{ height: '1rem', width: '1rem', color: 'white' }} />
               Upcoming Events
             </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {mockEvents.slice(0, 3).map(event => (
-                <EventCard key={event.id} event={event} isCompact />
-              ))}
-            </div>
+            {upcomingEvents.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {upcomingEvents.slice(0, 3).map((event: any) => (
+                  <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    isCompact 
+                    onUpdate={handleEventUpdate}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', color: '#9ca3af', padding: '1rem' }}>
+                <Calendar style={{ height: '2rem', width: '2rem', margin: '0 auto 0.5rem', opacity: 0.5 }} />
+                <p style={{ fontSize: '0.875rem' }}>No upcoming events.</p>
+              </div>
+            )}
             <button 
               onClick={handleViewEvents}
               style={{ 
