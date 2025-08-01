@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '../../../../generated/prisma';
+import { prisma } from '@/lib/prisma';
 import { withAuth, AuthRequest } from '../../../../lib/auth';
-
-const prisma = new PrismaClient();
 
 // GET /api/auth/profile - Get current user profile
 export const GET = withAuth(async (request: AuthRequest) => {
@@ -16,6 +14,7 @@ export const GET = withAuth(async (request: AuthRequest) => {
         id: true,
         email: true,
         name: true,
+        username: true,
         avatar: true,
         bio: true,
         discord: true,
@@ -26,7 +25,6 @@ export const GET = withAuth(async (request: AuthRequest) => {
         status: true,
         lastActive: true,
         createdAt: true,
-        // Include relationship counts
         _count: {
           select: {
             hostedSessions: true,
@@ -108,17 +106,17 @@ export const GET = withAuth(async (request: AuthRequest) => {
         connections: totalConnections,
       },
       activeSessions: [
-        ...user.hostedSessions.map(session => ({
+        ...user.hostedSessions.map((session: any) => ({
           ...session,
           role: 'host' as const,
           memberCount: session._count.members + 1,
         })),
-        ...user.sessionMembers.map(member => ({
+        ...user.sessionMembers.map((member: any) => ({
           ...member.session,
           role: 'member' as const,
         })),
       ],
-      upcomingEvents: user.eventAttendees.map(attendee => attendee.event),
+      upcomingEvents: user.eventAttendees.map((attendee: any) => attendee.event),
     };
 
     delete (profile as any)._count;

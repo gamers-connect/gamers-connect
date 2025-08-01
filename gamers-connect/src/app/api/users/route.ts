@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { Prisma, PrismaClient } from '../../../generated/prisma';
+import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
-
-const prisma = new PrismaClient();
 
 // Validation schemas
 const createUserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   name: z.string().min(1),
+  username: z.string().min(3),
   avatar: z.string().optional(),
   bio: z.string().optional(),
   discord: z.string().optional(),
@@ -112,9 +111,9 @@ export async function POST(request: NextRequest) {
 
     const user = await prisma.user.create({
       data: {
-        ...validatedData, // Spread all properties from validatedData
-        password: hashedPassword, // <--- OVERRIDE with the hashed password
-      } as Prisma.UserUncheckedCreateInput, // Assert to UncheckedCreateInput for direct scalar field mapping
+        ...validatedData,
+        password: hashedPassword,
+      },
       select: {
         id: true,
         email: true,

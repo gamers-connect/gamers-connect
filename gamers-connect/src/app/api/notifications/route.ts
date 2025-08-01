@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '../../../generated/prisma';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { withAuth, AuthRequest } from '../../../lib/auth';
 import { z } from 'zod';
-
-const prisma5 = new PrismaClient();
 
 const markAsReadSchema = z.object({
   notificationIds: z.array(z.string()).optional(),
@@ -25,15 +23,15 @@ export const GET = withAuth(async (request: AuthRequest) => {
       where.isRead = false;
     }
 
-    const notifications = await prisma5.notification.findMany({
+    const notifications = await prisma.notification.findMany({
       where,
       orderBy: { createdAt: 'desc' },
       take: limit,
       skip: offset,
     });
 
-    const total = await prisma5.notification.count({ where });
-    const unreadCount = await prisma5.notification.count({
+    const total = await prisma.notification.count({ where });
+    const unreadCount = await prisma.notification.count({
       where: { userId, isRead: false },
     });
 
@@ -61,7 +59,7 @@ export const PUT = withAuth(async (request: AuthRequest) => {
     const { notificationIds, markAll } = markAsReadSchema.parse(body);
 
     if (markAll) {
-      await prisma5.notification.updateMany({
+      await prisma.notification.updateMany({
         where: {
           userId,
           isRead: false,
@@ -71,7 +69,7 @@ export const PUT = withAuth(async (request: AuthRequest) => {
 
       return NextResponse.json({ message: 'All notifications marked as read' });
     } else if (notificationIds && notificationIds.length > 0) {
-      await prisma5.notification.updateMany({
+      await prisma.notification.updateMany({
         where: {
           id: { in: notificationIds },
           userId,
@@ -103,7 +101,7 @@ export const DELETE = withAuth(async (request: AuthRequest) => {
     const deleteAll = searchParams.get('deleteAll') === 'true';
 
     if (deleteAll) {
-      const deleted = await prisma5.notification.deleteMany({
+      const deleted = await prisma.notification.deleteMany({
         where: { userId },
       });
 
@@ -111,7 +109,7 @@ export const DELETE = withAuth(async (request: AuthRequest) => {
         message: `Deleted ${deleted.count} notifications`,
       });
     } else if (notificationId) {
-      const notification = await prisma5.notification.findUnique({
+      const notification = await prisma.notification.findUnique({
         where: { id: notificationId },
       });
 
@@ -123,7 +121,7 @@ export const DELETE = withAuth(async (request: AuthRequest) => {
         return NextResponse.json({ error: 'You can only delete your own notifications' }, { status: 403 });
       }
 
-      await prisma5.notification.delete({
+      await prisma.notification.delete({
         where: { id: notificationId },
       });
 

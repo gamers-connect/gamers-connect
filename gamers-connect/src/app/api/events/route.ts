@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '../../../generated/prisma';
+import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-
-const prisma = new PrismaClient();
 
 const createEventSchema = z.object({
   title: z.string().min(1),
@@ -73,7 +71,7 @@ export async function GET(request: NextRequest) {
 
     const total = await prisma.event.count({ where });
 
-    const formattedEvents = events.map(event => ({
+    const formattedEvents = events.map((event: any) => ({
       ...event,
       attendeeCount: event._count.attendees,
       isFullyBooked: event._count.attendees >= event.maxAttendees,

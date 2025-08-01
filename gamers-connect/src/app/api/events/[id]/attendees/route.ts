@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '../../../../../generated/prisma';
+import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
-const prisma = new PrismaClient();
 
 const joinEventSchema = z.object({
   userId: z.string().min(1),

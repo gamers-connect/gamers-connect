@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '../../../../generated/prisma';
+import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
-const prisma4 = new PrismaClient();
+// Using shared prisma instance from @/lib/prisma
 
 const updateConnectionSchema = z.object({
   status: z.enum(['ACCEPTED', 'DECLINED']),
@@ -18,7 +18,7 @@ export async function PUT(
     const body = await request.json();
     const { status, userId } = updateConnectionSchema.parse(body);
 
-    const existingConnection = await prisma4.connection.findUnique({
+    const existingConnection = await prisma.connection.findUnique({
       where: { id },
       include: {
         fromUser: { select: { id: true, name: true } },
@@ -38,7 +38,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Connection request has already been responded to' }, { status: 400 });
     }
 
-    const updatedConnection = await prisma4.connection.update({
+    const updatedConnection = await prisma.connection.update({
       where: { id },
       data: { status },
       include: {
@@ -69,7 +69,7 @@ export async function PUT(
       ? `${existingConnection.toUser.name} accepted your connection request!`
       : `${existingConnection.toUser.name} declined your connection request.`;
 
-    await prisma4.notification.create({
+    await prisma.notification.create({
       data: {
         userId: existingConnection.fromUserId,
         type: 'CONNECTION_REQUEST',
@@ -102,7 +102,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'userId is required' }, { status: 400 });
     }
 
-    const existingConnection = await prisma4.connection.findUnique({
+    const existingConnection = await prisma.connection.findUnique({
       where: { id },
       include: {
         fromUser: { select: { name: true } },
@@ -121,13 +121,13 @@ export async function DELETE(
       return NextResponse.json({ error: 'You are not part of this connection' }, { status: 403 });
     }
 
-    await prisma4.connection.delete({ where: { id } });
+    await prisma.connection.delete({ where: { id } });
 
     if (existingConnection.status === 'ACCEPTED') {
       const otherUserId = isFromUser ? existingConnection.toUserId : existingConnection.fromUserId;
       const currentUserName = isFromUser ? existingConnection.fromUser.name : existingConnection.toUser.name;
 
-      await prisma4.notification.create({
+      await prisma.notification.create({
         data: {
           userId: otherUserId,
           type: 'CONNECTION_REQUEST',

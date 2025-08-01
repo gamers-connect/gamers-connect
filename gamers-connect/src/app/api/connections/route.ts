@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '../../../generated/prisma';
-import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
+import z from 'zod';
 
-const prisma3 = new PrismaClient();
+// Remove this line - use shared instance instead:
+// // Using shared prisma instance from @/lib/prisma
 
 const createConnectionSchema = z.object({
   fromUserId: z.string().min(1),
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
       where.status = status;
     }
 
-    const connections = await prisma3.connection.findMany({
+    const connections = await prisma.connection.findMany({
       where,
       include: {
         fromUser: {
@@ -77,7 +78,7 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
     });
 
-    const formattedConnections = connections.map(connection => {
+    const formattedConnections = connections.map((connection: any) => {
       const isFromUser = connection.fromUser.id === userId;
       const otherUser = isFromUser ? connection.toUser : connection.fromUser;
       
@@ -89,7 +90,7 @@ export async function GET(request: NextRequest) {
         updatedAt: connection.updatedAt,
         isOutgoing: isFromUser,
         user: otherUser,
-        mutualGames: connection.fromUser.games.filter(game => 
+        mutualGames: connection.fromUser.games.filter((game: string) => 
           connection.toUser.games.includes(game)
         ).length,
       };
@@ -110,8 +111,8 @@ export async function POST(request: NextRequest) {
     const { fromUserId, toUserId, message } = validatedData;
 
     const [fromUser, toUser] = await Promise.all([
-      prisma3.user.findUnique({ where: { id: fromUserId } }),
-      prisma3.user.findUnique({ where: { id: toUserId } }),
+      prisma.user.findUnique({ where: { id: fromUserId } }),
+      prisma.user.findUnique({ where: { id: toUserId } }),
     ]);
 
     if (!fromUser || !toUser) {
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Cannot send connection request to yourself' }, { status: 400 });
     }
 
-    const existingConnection = await prisma3.connection.findFirst({
+    const existingConnection = await prisma.connection.findFirst({
       where: {
         OR: [
           { fromUserId, toUserId },
@@ -135,7 +136,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Connection request already exists' }, { status: 409 });
     }
 
-    const connection = await prisma3.connection.create({
+    const connection = await prisma.connection.create({
       data: {
         fromUserId,
         toUserId,
@@ -162,7 +163,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    await prisma3.notification.create({
+    await prisma.notification.create({
       data: {
         userId: toUserId,
         type: 'CONNECTION_REQUEST',

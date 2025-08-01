@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '../../../generated/prisma';
+import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-
-const prisma = new PrismaClient();
 
 const createSessionSchema = z.object({
   title: z.string().min(1),
@@ -99,7 +97,7 @@ export async function GET(request: NextRequest) {
 
     const total = await prisma.session.count({ where });
 
-    const formattedSessions = sessions.map(session => ({
+    const formattedSessions = sessions.map((session: any) => ({
       ...session,
       memberCount: session._count.members + 1, // +1 for host
       isFull: session._count.members + 1 >= session.maxPlayers,

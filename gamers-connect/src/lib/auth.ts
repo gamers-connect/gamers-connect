@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '../generated/prisma';
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
+// Using shared prisma instance from @/lib/prisma
 
 export interface AuthUser {
   id: string;

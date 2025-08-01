@@ -3,7 +3,7 @@
 
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
-import { Prisma } from '../generated/prisma';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 export class ApiError extends Error {
   public statusCode: number;
@@ -67,7 +67,7 @@ export function handleApiError(error: unknown): NextResponse {
   }
 
   // Handle Prisma errors
-  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+  if (error instanceof PrismaClientKnownRequestError) {
     switch (error.code) {
       case 'P2002':
         return NextResponse.json(

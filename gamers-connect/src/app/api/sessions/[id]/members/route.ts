@@ -1,9 +1,7 @@
 // ===== app/api/sessions/[id]/members/route.ts =====
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '../../../../../generated/prisma';
+import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-
-const prisma2 = new PrismaClient();
 
 const joinSessionSchema = z.object({
   userId: z.string().min(1),
@@ -20,7 +18,7 @@ export async function POST(request: NextRequest, { params }: RouteParams2) {
     const body = await request.json();
     const { userId } = joinSessionSchema.parse(body);
 
-    const session = await prisma2.session.findUnique({
+    const session = await prisma.session.findUnique({
       where: { id: sessionId },
       include: { _count: { select: { members: true } } },
     });
@@ -41,12 +39,12 @@ export async function POST(request: NextRequest, { params }: RouteParams2) {
       return NextResponse.json({ error: 'Host is already part of the session' }, { status: 400 });
     }
 
-    const user = await prisma2.user.findUnique({ where: { id: userId } });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const existingMember = await prisma2.sessionMember.findUnique({
+    const existingMember = await prisma.sessionMember.findUnique({
       where: { userId_sessionId: { userId, sessionId } },
     });
 
@@ -54,7 +52,7 @@ export async function POST(request: NextRequest, { params }: RouteParams2) {
       return NextResponse.json({ error: 'User is already a member of this session' }, { status: 409 });
     }
 
-    const member = await prisma2.sessionMember.create({
+    const member = await prisma.sessionMember.create({
       data: { userId, sessionId },
       include: {
         user: {
@@ -70,7 +68,7 @@ export async function POST(request: NextRequest, { params }: RouteParams2) {
       },
     });
 
-    await prisma2.notification.create({
+    await prisma.notification.create({
       data: {
         userId: session.hostId,
         type: 'SESSION',
@@ -80,7 +78,7 @@ export async function POST(request: NextRequest, { params }: RouteParams2) {
       },
     });
 
-    await prisma2.notification.create({
+    await prisma.notification.create({
       data: {
         userId: userId,
         type: 'SESSION',
@@ -112,12 +110,12 @@ export async function DELETE(request: NextRequest, { params }: RouteParams2) {
       return NextResponse.json({ error: 'userId is required' }, { status: 400 });
     }
 
-    const session = await prisma2.session.findUnique({ where: { id: sessionId } });
+    const session = await prisma.session.findUnique({ where: { id: sessionId } });
     if (!session) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 });
     }
 
-    const existingMember = await prisma2.sessionMember.findUnique({
+    const existingMember = await prisma.sessionMember.findUnique({
       where: { userId_sessionId: { userId, sessionId } },
       include: { user: { select: { name: true } } },
     });
@@ -133,12 +131,12 @@ export async function DELETE(request: NextRequest, { params }: RouteParams2) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    await prisma2.sessionMember.delete({
+    await prisma.sessionMember.delete({
       where: { userId_sessionId: { userId, sessionId } },
     });
 
     if (isHostKicking) {
-      await prisma2.notification.create({
+      await prisma.notification.create({
         data: {
           userId: userId,
           type: 'SESSION',
@@ -147,7 +145,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams2) {
         },
       });
     } else {
-      await prisma2.notification.create({
+      await prisma.notification.create({
         data: {
           userId: session.hostId,
           type: 'SESSION',

@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import { Plus, Gamepad2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import api from '@/lib/api';
 
 interface AvailabilityPost {
-  id: number;
+  id: string;
   game: string;
   message: string;
   duration: string;
@@ -17,27 +19,61 @@ interface AvailabilityPosterProps {
 }
 
 const AvailabilityPoster: React.FC<AvailabilityPosterProps> = ({ onPostAvailability }) => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [postData, setPostData] = useState({
     game: '',
     message: '',
     duration: '1-2 hours'
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const games = ['Valorant', 'Overwatch 2', 'League of Legends', 'Apex Legends', 'Minecraft', 'Any Game'];
   const durations = ['30 minutes', '1-2 hours', '2-4 hours', 'All day', 'Open-ended'];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newPost: AvailabilityPost = {
-      id: Date.now(),
-      ...postData,
-      timestamp: new Date().toISOString(),
-      user: 'Current User'
-    };
-    onPostAvailability(newPost);
-    setPostData({ game: '', message: '', duration: '1-2 hours' });
-    setIsOpen(false);
+    
+    if (!user) {
+      setError('You must be logged in to post availability');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // Create the post data for the API
+      const postPayload = {
+        game: postData.game,
+        message: postData.message,
+        duration: postData.duration
+      };
+
+      // Call the API to create the availability post
+      const response = await api.availability.create(postPayload);
+      
+      // Create the local post object to pass to the parent component
+      const newPost: AvailabilityPost = {
+        id: response.id,
+        ...postData,
+        timestamp: response.timestamp || new Date().toISOString(),
+        user: user.name
+      };
+      
+      // Notify the parent component
+      onPostAvailability(newPost);
+      
+      // Reset the form
+      setPostData({ game: '', message: '', duration: '1-2 hours' });
+      setIsOpen(false);
+    } catch (err) {
+      console.error('Failed to post availability:', err);
+      setError('Failed to post availability. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) {
@@ -71,18 +107,38 @@ const AvailabilityPoster: React.FC<AvailabilityPosterProps> = ({ onPostAvailabil
   }
 
   return (
-    <div className="card card-padding" style={{ border: '2px solid black' }}>
+    <div style={{ 
+      background: 'white',
+      border: '1px solid #e5e7eb',
+      borderRadius: '0.75rem',
+      padding: '1.5rem',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+    }}>
       <h3 style={{ 
         fontSize: '1.125rem', 
         fontWeight: '600', 
         marginBottom: '1rem',
         display: 'flex',
         alignItems: 'center',
-        gap: '0.5rem'
+        gap: '0.5rem',
+        color: '#1f2937'
       }}>
         <Gamepad2 style={{ height: '1.25rem', width: '1.25rem' }} />
         Post Your Gaming Availability
       </h3>
+
+      {error && (
+        <div style={{
+          backgroundColor: '#fee2e2',
+          color: '#ef4444',
+          padding: '0.75rem',
+          borderRadius: '0.5rem',
+          marginBottom: '1rem',
+          fontSize: '0.875rem'
+        }}>
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div>
@@ -103,8 +159,9 @@ const AvailabilityPoster: React.FC<AvailabilityPosterProps> = ({ onPostAvailabil
               width: '100%',
               border: '1px solid #d1d5db',
               borderRadius: '0.5rem',
-              padding: '0.5rem 0.75rem',
-              fontSize: '0.875rem'
+              padding: '0.75rem',
+              fontSize: '0.875rem',
+              backgroundColor: 'white'
             }}
           >
             <option value="">Select a game</option>
@@ -131,8 +188,9 @@ const AvailabilityPoster: React.FC<AvailabilityPosterProps> = ({ onPostAvailabil
               width: '100%',
               border: '1px solid #d1d5db',
               borderRadius: '0.5rem',
-              padding: '0.5rem 0.75rem',
-              fontSize: '0.875rem'
+              padding: '0.75rem',
+              fontSize: '0.875rem',
+              backgroundColor: 'white'
             }}
           >
             {durations.map(duration => (
@@ -159,9 +217,10 @@ const AvailabilityPoster: React.FC<AvailabilityPosterProps> = ({ onPostAvailabil
               width: '100%',
               border: '1px solid #d1d5db',
               borderRadius: '0.5rem',
-              padding: '0.5rem 0.75rem',
+              padding: '0.75rem',
               fontSize: '0.875rem',
-              resize: 'vertical'
+              resize: 'vertical',
+              fontFamily: 'inherit'
             }}
             placeholder="e.g., Looking for ranked teammates, casual play, or just want to have fun!"
           />
@@ -171,17 +230,37 @@ const AvailabilityPoster: React.FC<AvailabilityPosterProps> = ({ onPostAvailabil
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="btn btn-secondary"
-            style={{ flex: 1, padding: '0.5rem' }}
+            disabled={loading}
+            style={{
+              flex: 1,
+              padding: '0.75rem',
+              backgroundColor: '#f3f4f6',
+              color: '#374151',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              fontWeight: '500',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1
+            }}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="btn btn-primary"
-            style={{ flex: 1, padding: '0.5rem' }}
+            disabled={loading}
+            style={{
+              flex: 1,
+              padding: '0.75rem',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.5rem',
+              fontWeight: '500',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1
+            }}
           >
-            Post Availability
+            {loading ? 'Posting...' : 'Post Availability'}
           </button>
         </div>
       </form>

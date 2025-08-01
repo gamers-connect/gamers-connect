@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // app/api/sessions/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '../../../../generated/prisma';
+import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-
-const prisma = new PrismaClient();
 
 const updateSessionSchema = z.object({
   title: z.string().min(1).optional(),
@@ -72,15 +70,26 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 });
     }
 
-    if (session.isPrivate && userId) {
+    if (session.isPrivate) {
+      if (!userId) {
+        return NextResponse.json(
+          { error: 'Access denied to private session' }, 
+          { status: 403 }
+        );
+      }
+      
       const canView = session.hostId === userId || 
-                     session.members.some(member => member.user.id === userId);
+                      (session.members && 
+                       session.members.some((member: any) => 
+                         member && member.user && member.user.id === userId
+                       ));
       
       if (!canView) {
-        return NextResponse.json({ error: 'Access denied to private session' }, { status: 403 });
+        return NextResponse.json(
+          { error: 'Access denied to private session' }, 
+          { status: 403 }
+        );
       }
-    } else if (session.isPrivate && !userId) {
-      return NextResponse.json({ error: 'Access denied to private session' }, { status: 403 });
     }
 
     const formattedSession = {
@@ -92,7 +101,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         session.status === 'ACTIVE' &&
         session._count.members + 1 < session.maxPlayers &&
         session.hostId !== userId &&
-        !session.members.some(member => member.user.id === userId)
+        !session.members.some((member: any) => member.user.id === userId)
       ) : false,
     };
 
