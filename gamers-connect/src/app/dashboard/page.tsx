@@ -8,6 +8,8 @@ import EventCard from '../../components/EventCard';
 import QuickActions from '../../components/QuickActions';
 import { useAuth } from '../../contexts/AuthContext';
 import api, { UserProfile, Event, Session} from '../../lib/api';
+import SessionCreationModel from '../../components/SessionCreationModel';
+import toast from 'react-hot-toast';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
@@ -17,6 +19,7 @@ const Dashboard: React.FC = () => {
   const [userSessions, setUserSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -57,6 +60,34 @@ const Dashboard: React.FC = () => {
 
   const handleViewEvents = () => {
     router.push('/events');
+  };
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const showSuccessToast = (message: string) => {
+    toast.success(message);
+  };
+
+  const handleCreateSession = async () => {
+    //refresh session list
+    try {
+      const sessionsResponse = await api.sessions.getAll({
+        userId: user?.id,
+        limit: 2,
+      });
+      setUserSessions(sessionsResponse.sessions);
+    } catch (err) {
+      console.error('Failed to refresh sessions:', err);
+    }
+
+    //show notification
+    showSuccessToast("Session created successfully!");
   };
 
   const handleEventUpdate = async () => {
@@ -235,7 +266,15 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <QuickActions onFindPlayers={handleFindPlayers} />
+          <QuickActions 
+            onFindPlayers={handleFindPlayers}
+            onCreateSession={handleOpenModal}
+          />
+          <SessionCreationModel 
+            isOpen={isModalOpen} 
+            onClose={handleCloseModal} 
+            onCreateSession={handleCreateSession}
+          />
           {/* Upcoming Events Card */}
           <div style={{
             background: 'rgba(255, 255, 255, 0.1)',
@@ -296,6 +335,21 @@ const Dashboard: React.FC = () => {
             >
               View All Events
             </button>
+            {/* THIS IS THE TEST BUTTON TO SEE THE NOTIFICATION */}
+            {/*
+            <button
+              onClick={() => toast.success('good ol test notification')}
+              style={{
+                marginTop: '2rem',
+                padding: '0.5rem 1rem',
+                backgroundColor: '#10b981',
+                color: 'white',
+                fontSize: '0.875rem'
+              }}
+            >
+              Show Test Toast
+            </button>
+            */}
           </div>
         </div>
       </div>

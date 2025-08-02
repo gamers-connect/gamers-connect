@@ -6,6 +6,7 @@ import { X, Lock, Globe } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
+import toast from 'react-hot-toast';
 
 interface SessionCreationModelProps {
   isOpen: boolean;
@@ -33,6 +34,7 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [missingFields, setMissingFields] = useState<string[]>([]);
 
   const games = ['Valorant', 'Overwatch 2', 'League of Legends', 'Apex Legends', 'Minecraft'];
   const platforms = ['PC', 'PlayStation', 'Xbox', 'Nintendo Switch', 'Mobile'];
@@ -46,6 +48,16 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
       return;
     }
 
+    const requiredFields = ['title', 'game', 'platform', 'date', 'time'];
+    const missing = requiredFields.filter(field => !sessionData[field as keyof typeof sessionData]);
+
+    if (missing.length > 0) {
+      setError('Please fill in the required fields:');
+      setMissingFields(missing); 
+      return;
+    }
+
+    setMissingFields([]);
     setLoading(true);
     setError('');
 
@@ -90,6 +102,7 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
     } catch (err: any) {
       console.error('Failed to create session:', err);
       setError(err.message || 'Failed to create session. Please try again.');
+      toast.error('Failed to create session');
     } finally {
       setLoading(false);
     }
@@ -177,7 +190,7 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                 style={{
                   width: '100%',
                   padding: '0.75rem',
-                  border: '1px solid #d1d5db',
+                  border: missingFields.includes('title') ? '2px solid #ef4444' : '1px solid #d1d5db',
                   borderRadius: '0.5rem',
                   fontSize: '1rem',
                   boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
@@ -204,7 +217,7 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                   style={{
                     width: '100%',
                     padding: '0.75rem',
-                    border: '1px solid #d1d5db',
+                    border: missingFields.includes('game') ? '2px solid #ef4444' : '1px solid #d1d5db',
                     borderRadius: '0.5rem',
                     fontSize: '1rem',
                     backgroundColor: 'white',
@@ -235,7 +248,7 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                   style={{
                     width: '100%',
                     padding: '0.75rem',
-                    border: '1px solid #d1d5db',
+                    border: missingFields.includes('platform') ? '2px solid #ef4444' : '1px solid #d1d5db',
                     borderRadius: '0.5rem',
                     fontSize: '1rem',
                     backgroundColor: 'white',
@@ -269,7 +282,7 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                   style={{
                     width: '100%',
                     padding: '0.75rem',
-                    border: '1px solid #d1d5db',
+                    border: missingFields.includes('date') ? '2px solid #ef4444' : '1px solid #d1d5db',
                     borderRadius: '0.5rem',
                     fontSize: '1rem',
                     boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
@@ -295,7 +308,7 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                   style={{
                     width: '100%',
                     padding: '0.75rem',
-                    border: '1px solid #d1d5db',
+                    border: missingFields.includes('time') ? '2px solid #ef4444' : '1px solid #d1d5db',
                     borderRadius: '0.5rem',
                     fontSize: '1rem',
                     boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
