@@ -6,13 +6,14 @@ import { useRouter } from 'next/navigation';
 
 interface QuickActionsProps {
   onFindPlayers: () => void;
+  onCreateSession: () => void;
 }
 
-const QuickActions: React.FC<QuickActionsProps> = ({ onFindPlayers }) => {
+const QuickActions: React.FC<QuickActionsProps> = ({ onFindPlayers, onCreateSession }) => {
   const router = useRouter();
 
   const handleCreateSession = () => {
-    router.push('/sessions/new');
+    onCreateSession();
   };
 
   return (

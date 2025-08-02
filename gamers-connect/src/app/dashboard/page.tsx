@@ -8,6 +8,7 @@ import EventCard from '../../components/EventCard';
 import QuickActions from '../../components/QuickActions';
 import { useAuth } from '../../contexts/AuthContext';
 import api, { UserProfile, Event, Session} from '../../lib/api';
+import SessionCreationModel from '../../components/SessionCreationModel';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
@@ -17,6 +18,7 @@ const Dashboard: React.FC = () => {
   const [userSessions, setUserSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -57,6 +59,19 @@ const Dashboard: React.FC = () => {
 
   const handleViewEvents = () => {
     router.push('/events');
+  };
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCreateSession = (session: unknown) => {
+    console.log('Session created:', session);
+    // Optionally: redirect or update a session list
   };
 
   const handleEventUpdate = async () => {
@@ -235,7 +250,15 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <QuickActions onFindPlayers={handleFindPlayers} />
+          <QuickActions 
+            onFindPlayers={handleFindPlayers}
+            onCreateSession={handleOpenModal}
+          />
+          <SessionCreationModel 
+            isOpen={isModalOpen} 
+            onClose={handleCloseModal} 
+            onCreateSession={handleCreateSession}
+          />
           {/* Upcoming Events Card */}
           <div style={{
             background: 'rgba(255, 255, 255, 0.1)',
