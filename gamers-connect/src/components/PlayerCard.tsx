@@ -19,24 +19,37 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
 }) => {
   const { user } = useAuth();
   const [isConnecting, setIsConnecting] = useState(false);
+  const [requestSent, setRequestSent] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const handleConnect = async () => {
     if (!user) return;
     
     setIsConnecting(true);
+    setRequestSent(false);
+    setStatusMessage(null);
+
     try {
       await api.connections.send(user.id, String(player.id), `Hi ${player.name}! I'd like to connect and play together.`);
       
+      setRequestSent(true);
+      setStatusMessage(`Friend request sent to ${player.name}!`);
+
       // Optionally trigger a refresh in the parent component
       if (onUpdate) {
         onUpdate();
       }
-      
+
+      setTimeout(() => setStatusMessage(null), 5000);
+
       // Show success feedback (you might want to use a toast notification here)
       console.log(`Connection request sent to ${player.name}`);
       
     } catch (error) {
       console.error('Failed to send connection request:', error);
+      setRequestSent(false);
+      setStatusMessage('Failed to send friend request.');
+      setTimeout(() => setStatusMessage(null), 5000);
       // Show error feedback
     } finally {
       setIsConnecting(false);
@@ -118,6 +131,17 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       >
         {isConnecting ? 'Sending...' : 'Connect'}
       </button>
+            {statusMessage && (
+        <p
+          style={{
+            marginTop: '0.75rem',
+            fontSize: '0.875rem',
+            color: requestSent ? '#22c55e' : '#f87171'
+          }}
+        >
+          {statusMessage}
+        </p>
+      )}
     </div>
   );
 };
