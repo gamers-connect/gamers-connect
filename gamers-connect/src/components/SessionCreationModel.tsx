@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Lock, Globe } from 'lucide-react';
+import { X, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
@@ -97,6 +97,9 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
       // Close the modal
       onClose();
       
+      // Success toast
+      toast.success('Session created successfully!');
+      
       // Optionally redirect to the new session page
       // router.push(`/sessions/${response.id}`);
     } catch (err: any) {
@@ -109,6 +112,7 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
   };
 
   const handleChange = (field: string, value: string | number | boolean) => {
+    console.log('Field changed:', field, 'New value:', value); // Debug log
     setSessionData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -168,10 +172,17 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
               fontSize: '0.875rem'
             }}>
               {error}
+              {missingFields.length > 0 && (
+                <ul style={{ margin: '0.5rem 0 0 1rem', paddingLeft: '1rem' }}>
+                  {missingFields.map(field => (
+                    <li key={field} style={{ textTransform: 'capitalize' }}>{field}</li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
 
-          <div>
+          <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '1rem' }}>
               <label style={{ 
                 display: 'block', 
@@ -193,7 +204,8 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                   border: missingFields.includes('title') ? '2px solid #ef4444' : '1px solid #d1d5db',
                   borderRadius: '0.5rem',
                   fontSize: '1rem',
-                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                  boxSizing: 'border-box'
                 }}
                 placeholder="e.g., Ranked Valorant Grind"
               />
@@ -221,7 +233,8 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                     borderRadius: '0.5rem',
                     fontSize: '1rem',
                     backgroundColor: 'white',
-                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                    boxSizing: 'border-box'
                   }}
                 >
                   <option value="">Select a game</option>
@@ -252,7 +265,8 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                     borderRadius: '0.5rem',
                     fontSize: '1rem',
                     backgroundColor: 'white',
-                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                    boxSizing: 'border-box'
                   }}
                 >
                   <option value="">Select platform</option>
@@ -285,7 +299,8 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                     border: missingFields.includes('date') ? '2px solid #ef4444' : '1px solid #d1d5db',
                     borderRadius: '0.5rem',
                     fontSize: '1rem',
-                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
@@ -311,7 +326,8 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                     border: missingFields.includes('time') ? '2px solid #ef4444' : '1px solid #d1d5db',
                     borderRadius: '0.5rem',
                     fontSize: '1rem',
-                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
@@ -338,7 +354,8 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                     border: '1px solid #d1d5db',
                     borderRadius: '0.5rem',
                     fontSize: '1rem',
-                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
@@ -364,7 +381,8 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                   borderRadius: '0.5rem',
                   fontSize: '1rem',
                   backgroundColor: 'white',
-                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                  boxSizing: 'border-box'
                 }}
               >
                 {skillLevels.map(level => (
@@ -395,35 +413,56 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                   fontSize: '1rem',
                   boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
                   resize: 'vertical',
-                  fontFamily: 'inherit'
+                  fontFamily: 'inherit',
+                  boxSizing: 'border-box'
                 }}
                 placeholder="Tell other players what to expect..."
               />
             </div>
 
+            {/* IMPROVED PRIVATE SESSION TOGGLE */}
             <div style={{ marginBottom: '2rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <input
-                  type="checkbox"
-                  id="private"
-                  checked={sessionData.isPrivate}
-                  onChange={(e) => handleChange('isPrivate', e.target.checked)}
-                  style={{ 
-                    height: '1rem', 
-                    width: '1rem', 
-                    borderRadius: '0.25rem', 
-                    border: '1px solid #d1d5db', 
-                    color: '#3b82f6', 
-                    marginRight: '0.75rem' 
-                  }}
-                />
-                <label htmlFor="private" style={{ display: 'flex', alignItems: 'center', color: '#374151' }}>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem', 
+                fontSize: '0.875rem', 
+                fontWeight: '500', 
+                color: '#374151' 
+              }}>
+                Session Privacy
+              </label>
+              <div style={{ 
+                padding: '0.75rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.5rem',
+                backgroundColor: '#f9fafb'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <input
+                    type="checkbox"
+                    id="private"
+                    checked={sessionData.isPrivate}
+                    onChange={(e) => handleChange('isPrivate', e.target.checked)}
+                    style={{ 
+                      height: '1rem', 
+                      width: '1rem', 
+                      borderRadius: '0.25rem', 
+                      border: '1px solid #d1d5db', 
+                      color: '#3b82f6', 
+                      marginRight: '0.75rem' 
+                    }}
+                  />
+                  <label htmlFor="private" style={{ display: 'flex', alignItems: 'center', color: '#374151', fontWeight: '500', cursor: 'pointer' }}>
+                    <Lock style={{ height: '1rem', width: '1rem', marginRight: '0.5rem', color: '#6b7280' }} />
+                    <span>Make this a Private Session</span>
+                  </label>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#6b7280', marginLeft: '2.25rem' }}>
                   {sessionData.isPrivate ? 
-                    <Lock style={{ height: '1rem', width: '1rem', marginRight: '0.5rem', color: '#6b7280' }} /> : 
-                    <Globe style={{ height: '1rem', width: '1rem', marginRight: '0.5rem', color: '#6b7280' }} />
+                    '🔒 Only invited players can join this session' : 
+                    '🌍 Anyone can find and join this public session'
                   }
-                  <span>{sessionData.isPrivate ? 'Private Session' : 'Public Session'}</span>
-                </label>
+                </div>
               </div>
             </div>
 
@@ -446,14 +485,13 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                 Cancel
               </button>
               <button
-                type="button" // Changed from "submit" to "button" since we're handling submit in the form onSubmit
-                onClick={handleSubmit}
+                type="submit"
                 disabled={loading}
                 style={{
                   padding: '0.75rem 1.5rem',
                   border: 'none',
                   borderRadius: '0.5rem',
-                  backgroundColor: '#3b82f6',
+                  backgroundColor: loading ? '#9ca3af' : '#3b82f6',
                   color: 'white',
                   fontWeight: '500',
                   cursor: loading ? 'not-allowed' : 'pointer',
@@ -463,7 +501,7 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
                 {loading ? 'Creating...' : 'Create Session'}
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>
