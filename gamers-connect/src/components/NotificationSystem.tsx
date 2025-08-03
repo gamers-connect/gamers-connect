@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Bell, X, Settings, Users, Calendar, MessageCircle, Trophy } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
@@ -40,6 +41,46 @@ const NotificationSystem: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const panelRef = useRef<HTMLDivElement>(null);
   const bellRef = useRef<HTMLButtonElement>(null);
+  const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
+  const [bellPosition, setBellPosition] = useState({ top: 0, right: 0 });
+
+  // Create and manage portal root
+  useEffect(() => {
+    // Create a completely separate div attached directly to body
+    const portalDiv = document.createElement('div');
+    portalDiv.id = 'notification-portal-root';
+    portalDiv.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 999999999;
+    `;
+    
+    // Append directly to body (not any other container)
+    document.body.appendChild(portalDiv);
+    setPortalRoot(portalDiv);
+
+    return () => {
+      // Cleanup on unmount
+      if (document.body.contains(portalDiv)) {
+        document.body.removeChild(portalDiv);
+      }
+    };
+  }, []);
+
+  // Calculate bell position when opening
+  useEffect(() => {
+    if (isOpen && bellRef.current) {
+      const rect = bellRef.current.getBoundingClientRect();
+      setBellPosition({
+        top: rect.bottom + 8,
+        right: window.innerWidth - rect.right
+      });
+    }
+  }, [isOpen]);
 
   // Fetch notifications from API
   useEffect(() => {
@@ -109,40 +150,6 @@ const NotificationSystem: React.FC = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen]);
-
-  // ULTIMATE FIX: Add/remove body styles when notification opens
-  useEffect(() => {
-    if (isOpen) {
-      // Create a unique class for maximum z-index
-      const style = document.createElement('style');
-      style.id = 'notification-z-index-fix';
-      style.textContent = `
-        .notification-system-overlay {
-          position: fixed !important;
-          top: 0 !important;
-          left: 0 !important;
-          right: 0 !important;
-          bottom: 0 !important;
-          z-index: 9999999 !important;
-          pointer-events: auto !important;
-        }
-        .notification-system-panel {
-          position: fixed !important;
-          z-index: 9999999 !important;
-          pointer-events: auto !important;
-          transform: translate3d(0, 0, 999px) !important;
-        }
-      `;
-      document.head.appendChild(style);
-
-      return () => {
-        const existingStyle = document.getElementById('notification-z-index-fix');
-        if (existingStyle) {
-          document.head.removeChild(existingStyle);
-        }
-      };
-    }
   }, [isOpen]);
 
   const getNotificationIcon = (type: string) => {
@@ -399,38 +406,44 @@ const NotificationSystem: React.FC = () => {
         )}
       </button>
 
-      {/* FINAL SOLUTION: Notification Panel with dynamic CSS injection */}
-      {isOpen && (
+      {isOpen && portalRoot && createPortal(
         <>
-          {/* Full-screen overlay */}
+          {/* Full screen overlay */}
           <div
-            className="notification-system-overlay"
             style={{
-              backgroundColor: 'transparent'
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              backgroundColor: 'transparent',
+              pointerEvents: 'auto',
+              zIndex: 999999998
             }}
             onClick={() => setIsOpen(false)}
           />
           
-          {/* Notification panel */}
+          {/* Notification Panel */}
           <div
             ref={panelRef}
-            className="notification-system-panel"
             style={{
-              top: '4rem',
-              right: '2rem',
+              position: 'fixed',
+              top: `${bellPosition.top}px`,
+              right: `${bellPosition.right}px`,
               width: '24rem',
               maxHeight: '32rem',
               background: 'white',
               border: '1px solid rgba(0, 0, 0, 0.1)',
               borderRadius: '0.75rem',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
               overflow: 'hidden',
               color: '#1f2937',
+              zIndex: 999999999,
+              pointerEvents: 'auto',
               isolation: 'isolate',
+              transform: 'translateZ(0)',
               backfaceVisibility: 'hidden',
-              perspective: '1000px',
-              willChange: 'transform',
-              contain: 'layout style paint'
+              willChange: 'transform'
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -692,7 +705,8 @@ const NotificationSystem: React.FC = () => {
               </div>
             )}
           </div>
-        </>
+        </>,
+        portalRoot
       )}
     </div>
   );
