@@ -24,7 +24,7 @@ export interface User {
     status: 'online' | 'away' | 'offline';
     rating: number;
   }
-  
+
   export interface GameEvent {
     id: number;
     title: string;

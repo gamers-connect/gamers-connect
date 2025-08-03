@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
+'use client';
 
 import React, { useState } from 'react';
 import { X, Eye, EyeOff, User, Mail, Lock, Gamepad2 } from 'lucide-react';
