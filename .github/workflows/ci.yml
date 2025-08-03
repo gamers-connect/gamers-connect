@@ -1,0 +1,61 @@
+name: ci-gamers-connect # Workflow name updated to match your repository
+
+on:
+  push:
+    branches:
+      - main # This workflow runs on pushes to the 'main' branch
+  pull_request:
+    branches:
+      - main # This workflow also runs on pull requests targeting the 'main' branch
+
+defaults:
+  run:
+    # All commands will now run from within the 'gamers-connect' directory
+    working-directory: ./gamers-connect
+
+jobs:
+  build:
+    # The job will run on an Ubuntu Linux virtual machine
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Cache Node.js modules to speed up builds
+      - name: Cache node modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm # Path to cache
+          key: ${{ runner.os }}-build-v5-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }} # Cache key based on OS, name, and package-lock.json hash
+          restore-keys: |
+            ${{ runner.os }}-build-v5-${{ env.cache-name }}-
+            ${{ runner.os }}-build-v5-
+            ${{ runner.os }}-
+
+      # Step 3: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x' # Using Node.js version 16.x as specified
+
+      # Step 4: Install project dependencies cleanly
+      - name: Install dependencies (npm ci)
+        run: npm ci --legacy-peer-deps
+
+      # Step 5: Generate Prisma Client
+      # This step is crucial for your application to interact with the database schema.
+      # It does NOT run migrations, only generates the client based on schema.prisma.
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      # Step 6: Run linting checks (assuming 'lint' script exists in package.json)
+      - name: Run lint
+        run: npm run lint
+          
+      # Step 7: Run TestCafe CI tests (assuming 'testcafe-ci' script exists in package.json)
+      - name: Run TestCafe CI tests
+        run: npm run testcafe-ci
