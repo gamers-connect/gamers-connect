@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PlayerCard from '../../components/PlayerCard';
 import FilterBar from '../../components/FilterBar';
+import { useAuth } from '@/contexts/AuthContext';
+import api from '@/lib/api';
 
-// Mock data
 const mockGames = [
   'Valorant', 'Overwatch 2', 'Super Smash Bros', 'League of Legends', 
   'Apex Legends', 'Rocket League', 'Minecraft', 'Among Us'
@@ -13,20 +15,40 @@ const mockGames = [
 const mockPlatforms = ['PC', 'PlayStation', 'Xbox', 'Nintendo Switch', 'Mobile'];
 const mockPlaystyles = ['Casual', 'Competitive', 'Cooperative'];
 
-const mockPlayers = [
-  { id: 1, name: 'Alex Chen', games: ['Valorant', 'Overwatch 2'], platform: 'PC', playstyle: 'Competitive', location: 'UH Mānoa Campus', status: 'online' as const, rating: 4.8 },
-  { id: 2, name: 'Sarah Kim', games: ['Super Smash Bros', 'Minecraft'], platform: 'Nintendo Switch', playstyle: 'Casual', location: 'UH Mānoa Campus', status: 'online' as const, rating: 4.9 },
-  { id: 3, name: 'Marcus Johnson', games: ['Apex Legends', 'Rocket League'], platform: 'PC', playstyle: 'Competitive', location: 'UH West Oahu', status: 'away' as const, rating: 4.7 },
-  { id: 4, name: 'Luna Patel', games: ['League of Legends', 'Valorant'], platform: 'PC', playstyle: 'Competitive', location: 'UH Mānoa Campus', status: 'online' as const, rating: 4.6 }
-];
-
 const FindPlayers: React.FC = () => {
+  const { user } = useAuth();
+  const [players, setPlayers] = useState([]);
   const [searchGame, setSearchGame] = useState('');
   const [searchPlatform, setSearchPlatform] = useState('');
   const [searchPlaystyle, setSearchPlaystyle] = useState('');
 
+  const fetchPlayers = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (searchGame) params.append('game', searchGame);
+      if (searchPlatform) params.append('platform', searchPlatform);
+      if (searchPlaystyle) params.append('playstyle', searchPlaystyle);
+
+      const res = await fetch(`/api/users?${params.toString()}`);
+      const data = await res.json();
+
+      if (user) {
+        setPlayers(data.users.filter((p: any) => p.id !== user.id));
+      } else {
+        setPlayers(data.users);
+      }
+    } catch (error) {
+      console.error('Failed to fetch players:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlayers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleSearch = () => {
-    console.log('Searching for:', { searchGame, searchPlatform, searchPlaystyle });
+    fetchPlayers();
   };
 
   return (
@@ -52,7 +74,7 @@ const FindPlayers: React.FC = () => {
       />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-        {mockPlayers.map(player => (
+        {players.map((player: any) => (
           <PlayerCard key={player.id} player={player} showRating isDetailed />
         ))}
       </div>
