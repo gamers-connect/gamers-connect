@@ -40,7 +40,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16.x' # Using Node.js version 16.x as specified
+          node-version: '18.x'
 
       # Step 4: Install project dependencies cleanly
       - name: Install dependencies (npm ci)
