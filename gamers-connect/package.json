@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "testcafe-ci": "testcafe chrome:headless tests/",
     "postinstall": "prisma generate",
     "prisma:migrate": "npx prisma migrate dev"
   },
