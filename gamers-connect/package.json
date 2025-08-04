@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "testcafe-ci": "npx testcafe chrome:headless tests/",
     "postinstall": "prisma generate",
     "prisma:migrate": "npx prisma migrate dev"
   },
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.54.2",
     "@prisma/client": "^6.13.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
@@ -30,7 +32,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.4.2",
+    "playwright": "^1.54.2",
     "prisma": "^6.13.0",
+    "testcafe": "^3.x.x",
     "typescript": "^5"
   }
 }
