@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "testcafe-ci": "npx testcafe chrome:headless tests/",
+    "test": "npx playwright test",
     "postinstall": "prisma generate",
     "prisma:migrate": "npx prisma migrate dev"
   },
