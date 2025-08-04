@@ -19,12 +19,12 @@ export default defineConfig({
 
   // Automatically start the dev server before running tests
   webServer: {
-    command: 'npm run dev', // Change this to match your start command
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-    stdout: 'ignore',
-    stderr: 'pipe',
+  command: 'npm run dev',
+  url: 'http://localhost:3000',
+  reuseExistingServer: !process.env.CI,
+  timeout: 120 * 1000, // wait 2 minutes
   },
+
 
   projects: [
     {
