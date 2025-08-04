@@ -40,7 +40,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x'
+          # Changed Node.js version to 20.x to satisfy lru-cache and other dependencies
+          node-version: '20.x' 
 
       # Step 4: Install project dependencies cleanly
       - name: Install dependencies (npm ci)
