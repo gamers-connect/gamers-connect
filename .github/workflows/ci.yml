@@ -48,9 +48,6 @@ jobs:
       - name: Deploy database migrations
         run: npx prisma migrate deploy
 
-      - name: Seed database (if needed)
-        run: npm run seed
-
       - name: Run lint
         run: npm run lint
 
