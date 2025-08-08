@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { MessageCircle, Edit3, Settings, Bell, BellOff } from 'lucide-react';
+import { MessageCircle, Edit3, Bell, BellOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 // Game emoji mapping

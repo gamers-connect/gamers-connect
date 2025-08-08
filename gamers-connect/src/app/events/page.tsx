@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Search, Calendar, Users, Trophy } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import EventCard from '../../components/EventCard';
 import { CreateEventModal } from '../../components/CreateEventModal'; 
 import api from '@/lib/api';
@@ -24,7 +23,6 @@ interface GameEvent {
 }
 
 const Events: React.FC = () => {
-  const { user } = useAuth();
   const [events, setEvents] = useState<GameEvent[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<GameEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +36,7 @@ const Events: React.FC = () => {
   const eventTypes = ['Tournament', 'Meetup', 'Contest', 'Scrimmage'];
 
   // Fetch events
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -86,11 +84,11 @@ const Events: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedType, selectedGame]);
 
   useEffect(() => {
     fetchEvents();
-  }, [selectedGame, selectedType]);
+  }, [selectedGame, selectedType, fetchEvents]);
 
   // Filter events based on search term
   useEffect(() => {
