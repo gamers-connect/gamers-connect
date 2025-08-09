@@ -5,7 +5,6 @@ import React, { useState, useEffect } from 'react';
 import PlayerCard from '../../components/PlayerCard';
 import FilterBar from '../../components/FilterBar';
 import { useAuth } from '@/contexts/AuthContext';
-import api from '@/lib/api';
 
 const mockGames = [
   'Valorant', 'Overwatch 2', 'Super Smash Bros', 'League of Legends', 

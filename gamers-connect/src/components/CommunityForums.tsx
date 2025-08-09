@@ -42,7 +42,7 @@ const CommunityForums: React.FC = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [forums, setForums] = useState<Forum[]>([
+  const [forums] = useState<Forum[]>([
     {
       id: 'valorant',
       name: 'Valorant Community',

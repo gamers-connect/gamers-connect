@@ -29,7 +29,6 @@ interface NavigationProps {
 const Navigation: React.FC<NavigationProps> = ({ 
   user, 
   currentPage, 
-  onToggleNotifications, 
   onLogout 
 }) => {
   const router = useRouter();
