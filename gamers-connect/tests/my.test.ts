@@ -5,6 +5,7 @@ import { test, expect, Page } from '@playwright/test';
 // Use a base URL from an environment variable for CI/CD flexibility
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
+// Improved sign in function with better error handling and debugging
 async function signIn(page: Page) {
   console.log('🔄 Starting sign in process...');
   await page.goto(BASE_URL);
