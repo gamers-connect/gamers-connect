@@ -4,6 +4,7 @@ import React from 'react';
 import { Gamepad2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import NotificationSystem from './NotificationSystem';
+import StatusChip from './StatusChip';
 
 interface User {
   id: string;
@@ -26,28 +27,64 @@ interface NavigationProps {
   onLogout: () => void;
 }
 
-const Navigation: React.FC<NavigationProps> = ({ 
-  user, 
-  currentPage, 
-  onToggleNotifications, 
-  onLogout 
+type Status = 'ONLINE' | 'AWAY' | 'OFFLINE';
+const normalizeStatus = (s: Status | null): Status =>
+  s === 'ONLINE' ? 'ONLINE'
+    : s === 'AWAY' ? 'AWAY'
+    : 'OFFLINE';
+
+const Navigation: React.FC<NavigationProps> = ({
+  user,
+  currentPage,
+  onToggleNotifications,
+  onLogout
 }) => {
   const router = useRouter();
-
   const handlePageChange = (page: string) => {
     router.push(`/${page}`);
   };
 
+  // Presence tracking (always uppercase)
+  const [presence, setPresence] = React.useState<Status>('OFFLINE');
+
+  React.useEffect(() => {
+    // Load from localStorage
+    try {
+      const cached = localStorage.getItem('presence_status') as Status | null;
+      setPresence(normalizeStatus(cached));
+    } catch {}
+
+    // In-tab updates
+    const onPresence = (e: Event) => {
+      const detail = (e as CustomEvent<Status>).detail ?? null;
+      setPresence(normalizeStatus(detail));
+    };
+    window.addEventListener('presence-status', onPresence as EventListener);
+
+    // Cross-tab updates
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'presence_status') {
+        setPresence(normalizeStatus((e.newValue as Status | null) ?? null));
+      }
+    };
+    window.addEventListener('storage', onStorage);
+
+    return () => {
+      window.removeEventListener('presence-status', onPresence as EventListener);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, []);
+
   if (!user) return null;
 
   return (
-    <nav style={{ 
+    <nav style={{
       background: 'rgba(255, 255, 255, 0.1)',
       backdropFilter: 'blur(10px)',
       borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
       padding: '1rem 0'
     }}>
-      <div style={{ 
+      <div style={{
         maxWidth: '1200px',
         margin: '0 auto',
         padding: '0 1.5rem',
@@ -55,100 +92,56 @@ const Navigation: React.FC<NavigationProps> = ({
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
+        {/* Left side nav */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Gamepad2 style={{ height: '2rem', width: '2rem', color: 'white' }} />
             <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white', margin: 0 }}>Game Connect</h1>
           </div>
-          
+
           <div style={{ display: 'flex', gap: '1.5rem' }}>
-            <button 
-              onClick={() => handlePageChange('dashboard')}
-              style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                background: currentPage === 'dashboard' ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-                color: 'white',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                fontSize: '0.875rem',
-                fontWeight: '500'
-              }}
-              onMouseEnter={(e) => {
-                if (currentPage !== 'dashboard') {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (currentPage !== 'dashboard') {
-                  e.currentTarget.style.background = 'transparent';
-                }
-              }}
-            >
-              Dashboard
-            </button>
-            <button 
-              onClick={() => handlePageChange('players')}
-              style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                background: currentPage === 'players' ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-                color: 'white',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                fontSize: '0.875rem',
-                fontWeight: '500'
-              }}
-              onMouseEnter={(e) => {
-                if (currentPage !== 'players') {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (currentPage !== 'players') {
-                  e.currentTarget.style.background = 'transparent';
-                }
-              }}
-            >
-              Find Players
-            </button>
-            <button 
-              onClick={() => handlePageChange('events')}
-              style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                background: currentPage === 'events' ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-                color: 'white',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                fontSize: '0.875rem',
-                fontWeight: '500'
-              }}
-              onMouseEnter={(e) => {
-                if (currentPage !== 'events') {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (currentPage !== 'events') {
-                  e.currentTarget.style.background = 'transparent';
-                }
-              }}
-            >
-              Events
-            </button>
+            {['dashboard', 'players', 'events'].map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  background: currentPage === page ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
+                  color: 'white',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  fontSize: '0.875rem',
+                  fontWeight: '500'
+                }}
+                onMouseEnter={(e) => {
+                  if (currentPage !== page) {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentPage !== page) {
+                    e.currentTarget.style.background = 'transparent';
+                  }
+                }}
+              >
+                {page === 'dashboard'
+                  ? 'Dashboard'
+                  : page === 'players'
+                    ? 'Find Players'
+                    : 'Events'}
+              </button>
+            ))}
           </div>
         </div>
 
+        {/* Right side nav */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {/* Use NotificationSystem component */}
           <NotificationSystem />
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <button 
+            <button
               onClick={() => handlePageChange('profile')}
               style={{
                 display: 'flex',
@@ -185,10 +178,13 @@ const Navigation: React.FC<NavigationProps> = ({
               }}>
                 {user?.avatar}
               </div>
-              <span style={{ fontWeight: '500', fontSize: '0.875rem' }}>{user?.name}</span>
+              <span style={{ fontWeight: '500', fontSize: '0.875rem' }}>
+                {user?.name}
+              </span>
+              <StatusChip status={presence} />
             </button>
-            
-            <button 
+
+            <button
               onClick={onLogout}
               style={{
                 padding: '0.5rem 1rem',
