@@ -21,38 +21,47 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      if (!user) return;
-      try {
-        setLoading(true);
-        // Fetch recommended players (based on user's games)
-        const playersResponse = await api.users.getAll({
+useEffect(() => {
+  const fetchDashboardData = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+
+      const [
+        playersResponse,
+        eventsResponse,
+        sessionsResponse
+      ] = await Promise.all([
+        api.users.getAll({
           limit: 4,
-          game: user.games?.[0], // Filter by user's primary game
-        });
-        setRecommendedPlayers(playersResponse.users.filter(p => p.id !== user.id));
-        // Fetch upcoming events
-        const eventsResponse = await api.events.getAll({
+          game: user.games?.[0],
+        }),
+        api.events.getAll({
           upcoming: true,
           limit: 3,
-        });
-        setUpcomingEvents(eventsResponse.events);
-        // Fetch user's gaming sessions
-        const sessionsResponse = await api.sessions.getAll({
+        }),
+        api.sessions.getAll({
           userId: user.id,
           limit: 2,
-        });
-        setUserSessions(sessionsResponse.sessions);
-      } catch (error: any) {
-        console.error('Error fetching dashboard data:', error);
-        setError('Failed to load dashboard data');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboardData();
-  }, [user]);
+        })
+      ]);
+
+      setRecommendedPlayers(
+        playersResponse.users.filter(p => p.id !== user.id)
+      );
+      setUpcomingEvents(eventsResponse.events);
+      setUserSessions(sessionsResponse.sessions);
+    } catch (error: any) {
+      console.error('Error fetching dashboard data:', error);
+      setError('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDashboardData();
+}, [user]);
 
   const handleFindPlayers = () => {
     router.push('/players');
