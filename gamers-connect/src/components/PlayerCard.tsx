@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '../lib/api';
+import PlayerModal from './PlayerModal';
 
 type LowerStatus = 'online' | 'away' | 'offline';
 
@@ -32,49 +33,6 @@ interface PlayerCardProps {
   onUpdate?: () => void;
 }
 
-const PlayerModal: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  player: PlayerLike;
-  onConnect: () => void;
-  isConnecting: boolean;
-}> = ({ isOpen, onClose, player, onConnect, isConnecting }) => {
-  if (!isOpen) return null;
-  
-  return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '2rem',
-        borderRadius: '0.5rem',
-        maxWidth: '500px',
-        width: '90%'
-      }}>
-        <h2>{player.name}</h2>
-        <p>Email: {player.email}</p>
-        <p>Bio: {player.bio || 'No bio available'}</p>
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-          <button onClick={onConnect} disabled={isConnecting}>
-            {isConnecting ? 'Connecting...' : 'Connect'}
-          </button>
-          <button onClick={onClose}>Close</button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const toLowerStatus = (s?: PlayerLike['status']): LowerStatus => {
   if (s === 'ONLINE' || s === 'online') return 'online';
   if (s === 'AWAY' || s === 'away') return 'away';
@@ -89,7 +47,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [requestSent, setRequestSent] = useState(false); // Added missing state
+  const [requestSent, setRequestSent] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   // --- Normalize data for rendering ---
@@ -197,7 +155,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
         )}
 
         <button
-          onClick={() => setIsModalOpen(true)} // Changed to open modal instead of direct connect
+          onClick={() => setIsModalOpen(true)}
           disabled={isConnecting}
           style={{
             width: '100%',
