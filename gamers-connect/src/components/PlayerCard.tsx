@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '../lib/api';
-import PlayerModal from './PlayerModal';
+import PlayerModal from './PlayerModal'; // Import your existing modal
 
 type LowerStatus = 'online' | 'away' | 'offline';
 
@@ -47,7 +47,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [requestSent, setRequestSent] = useState(false);
+  const [requestSent, setRequestSent] = useState(false); // Added the missing state
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   // --- Normalize data for rendering ---
@@ -202,10 +202,10 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
           id: String(player.id),
           name: player.name,
           email: player.email,
-          avatar: player.avatar,
-          bio: player.bio,
-          discord: player.discord,
-          location: player.location,
+          avatar: player.avatar || undefined,
+          bio: player.bio || undefined,
+          discord: player.discord || undefined,
+          location: player.location || undefined,
           games: player.games || [],
           platform: player.platform || player.platforms?.[0] || 'Unknown',
           playstyle: player.playstyle || 'Not specified',
