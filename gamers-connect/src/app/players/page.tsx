@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useAuth } from '@/contexts/AuthContext';
 import PlayerCard from "../../components/PlayerCard";
 import FilterBar from "../../components/FilterBar";
 import api, { type UserProfile } from "../../lib/api";
@@ -21,6 +22,7 @@ const toLowerStatus = (s?: UpperStatus): LowerStatus => {
 };
 
 const FindPlayers: React.FC = () => {
+  const { user } = useAuth();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -44,7 +46,14 @@ const FindPlayers: React.FC = () => {
         playstyle: searchPlaystyle || undefined,
         limit: 50,
       });
-      setUsers(res.users || []);
+      
+      // Filter out current user if logged in
+      const allUsers = res.users || [];
+      const filteredUsers = user 
+        ? allUsers.filter((u) => u.id !== user.id)
+        : allUsers;
+        
+      setUsers(filteredUsers);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Failed to load players";
       console.error(e);
@@ -57,32 +66,7 @@ const FindPlayers: React.FC = () => {
   useEffect(() => {
     fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const fetchPlayers = async () => {
-    try {
-      const params = new URLSearchParams();
-      if (searchGame) params.append('game', searchGame);
-      if (searchPlatform) params.append('platform', searchPlatform);
-      if (searchPlaystyle) params.append('playstyle', searchPlaystyle);
-
-      const res = await fetch(`/api/users?${params.toString()}`);
-      const data = await res.json();
-
-      if (user) {
-        setPlayers(data.users.filter((p: any) => p.id !== user.id));
-      } else {
-        setPlayers(data.users);
-      }
-    } catch (error) {
-      console.error('Failed to fetch players:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchPlayers();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   const handleSearch = () => {
     fetchUsers();
@@ -140,6 +124,7 @@ const FindPlayers: React.FC = () => {
               }}
               showRating
               isDetailed
+              onUpdate={fetchUsers}
             />
           ))
         )}
