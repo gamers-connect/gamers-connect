@@ -32,6 +32,49 @@ interface PlayerCardProps {
   onUpdate?: () => void;
 }
 
+const PlayerModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  player: PlayerLike;
+  onConnect: () => void;
+  isConnecting: boolean;
+}> = ({ isOpen, onClose, player, onConnect, isConnecting }) => {
+  if (!isOpen) return null;
+  
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        padding: '2rem',
+        borderRadius: '0.5rem',
+        maxWidth: '500px',
+        width: '90%'
+      }}>
+        <h2>{player.name}</h2>
+        <p>Email: {player.email}</p>
+        <p>Bio: {player.bio || 'No bio available'}</p>
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+          <button onClick={onConnect} disabled={isConnecting}>
+            {isConnecting ? 'Connecting...' : 'Connect'}
+          </button>
+          <button onClick={onClose}>Close</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const toLowerStatus = (s?: PlayerLike['status']): LowerStatus => {
   if (s === 'ONLINE' || s === 'online') return 'online';
   if (s === 'AWAY' || s === 'away') return 'away';
@@ -46,6 +89,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [requestSent, setRequestSent] = useState(false); // Added missing state
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   // --- Normalize data for rendering ---
@@ -100,93 +144,94 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   const isOwnProfile = user?.id === String(player.id);
 
   return (
-    <div
-      style={{
-        background: 'rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        borderRadius: '0.75rem',
-        padding: '1.5rem',
-        transition: 'all 0.3s ease',
-        color: 'white'
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-        e.currentTarget.style.transform = 'translateY(-2px)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-        e.currentTarget.style.transform = 'translateY(0)';
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-        <h3 style={{ fontSize: '1.125rem', fontWeight: '600', margin: 0 }}>{player.name}</h3>
-        <span
-          style={{
-            backgroundColor: badgeStyles.bg,
-            color: badgeStyles.color,
-            padding: '0.25rem 0.75rem',
-            borderRadius: '9999px',
-            fontSize: '0.75rem',
-            border: `1px solid ${badgeStyles.border}`,
-            fontWeight: '500',
-            textTransform: 'capitalize'
-          }}
-        >
-          {status}
-        </span>
-      </div>
-
-      <p style={{ color: '#d1d5db', margin: '0 0 0.75rem 0' }}>
-        {games.length ? games.join(', ') : 'No games listed'}
-      </p>
-
-      <p style={{ color: '#d1d5db', fontSize: '0.875rem', margin: '0 0 1rem 0' }}>
-        {platformText}{playstyleText ? ` • ${playstyleText}` : ''}
-      </p>
-
-      {showRating && typeof rating === 'number' && (
-        <p style={{ color: '#d1d5db', fontSize: '0.875rem', margin: '0 0 1rem 0' }}>
-          Rating: {rating.toFixed(1)}/5.0
-        </p>
-      )}
-
-      <button
-        onClick={handleConnect}
-        disabled={isConnecting}
+    <>
+      <div
         style={{
-          width: '100%',
-          padding: '0.75rem',
-          backgroundColor: 'rgba(255, 255, 255, 0.2)',
-          color: 'white',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          borderRadius: '0.5rem',
-          cursor: isConnecting ? 'not-allowed' : 'pointer',
-          fontWeight: '500',
-          transition: 'all 0.2s ease',
-          opacity: isConnecting ? 0.7 : 1
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          borderRadius: '0.75rem',
+          padding: '1.5rem',
+          transition: 'all 0.3s ease',
+          color: 'white'
         }}
         onMouseEnter={(e) => {
-          if (!isConnecting) {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-          }
+          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+          e.currentTarget.style.transform = 'translateY(-2px)';
         }}
         onMouseLeave={(e) => {
-          if (!isConnecting) {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-          }
+          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+          e.currentTarget.style.transform = 'translateY(0)';
         }}
       >
-        {isConnecting ? 'Sending...' : 'Connect'}
-      </button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', margin: 0 }}>{player.name}</h3>
+          <span
+            style={{
+              backgroundColor: badgeStyles.bg,
+              color: badgeStyles.color,
+              padding: '0.25rem 0.75rem',
+              borderRadius: '9999px',
+              fontSize: '0.75rem',
+              border: `1px solid ${badgeStyles.border}`,
+              fontWeight: '500',
+              textTransform: 'capitalize'
+            }}
+          >
+            {status}
+          </span>
+        </div>
 
-      {statusMessage && (
-        <p
+        <p style={{ color: '#d1d5db', margin: '0 0 0.75rem 0' }}>
+          {games.length ? games.join(', ') : 'No games listed'}
+        </p>
+
+        <p style={{ color: '#d1d5db', fontSize: '0.875rem', margin: '0 0 1rem 0' }}>
+          {platformText}{playstyleText ? ` • ${playstyleText}` : ''}
+        </p>
+
+        {showRating && typeof rating === 'number' && (
+          <p style={{ color: '#d1d5db', fontSize: '0.875rem', margin: '0 0 1rem 0' }}>
+            Rating: {rating.toFixed(1)}/5.0
+          </p>
+        )}
+
+        <button
+          onClick={() => setIsModalOpen(true)} // Changed to open modal instead of direct connect
+          disabled={isConnecting}
           style={{
-            marginTop: '0.75rem',
-            fontSize: '0.875rem',
-            color: statusMessage.includes('Failed') ? '#f87171' : '#22c55e'
-          }}>
+            width: '100%',
+            padding: '0.75rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            borderRadius: '0.5rem',
+            cursor: isConnecting ? 'not-allowed' : 'pointer',
+            fontWeight: '500',
+            transition: 'all 0.2s ease',
+            opacity: isConnecting ? 0.7 : 1
+          }}
+          onMouseEnter={(e) => {
+            if (!isConnecting) {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isConnecting) {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+            }
+          }}
+        >
+          {requestSent ? 'Request Sent' : 'View Profile'}
+        </button>
+
+        {statusMessage && (
+          <p
+            style={{
+              marginTop: '0.75rem',
+              fontSize: '0.875rem',
+              color: statusMessage.includes('Failed') ? '#f87171' : '#22c55e'
+            }}>
             {statusMessage}
           </p>
         )}
