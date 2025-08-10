@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Eye, EyeOff, User, Mail, Lock, Gamepad2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -9,12 +9,15 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialMode?: 'signin' | 'signup';
+  // Add this prop to force immediate mode switching
+  forcedMode?: 'signin' | 'signup' | null;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ 
   isOpen, 
   onClose, 
-  initialMode = 'signin' 
+  initialMode = 'signin',
+  forcedMode = null
 }) => {
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
   const [showPassword, setShowPassword] = useState(false);
@@ -29,6 +32,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   });
 
   const { login, register } = useAuth();
+
+  // Immediately update mode when forcedMode changes
+  useEffect(() => {
+    if (forcedMode && isOpen) {
+      setMode(forcedMode);
+      setError('');
+      // Clear form when switching modes
+      setFormData({ email: '', password: '', name: '', username: '' });
+    }
+  }, [forcedMode, isOpen]);
+
+  // Reset mode when modal opens with initialMode
+  useEffect(() => {
+    if (isOpen && !forcedMode) {
+      setMode(initialMode);
+      setError('');
+      setFormData({ email: '', password: '', name: '', username: '' });
+    }
+  }, [isOpen, initialMode, forcedMode]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -66,7 +88,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   const switchMode = () => {
-    setMode(mode === 'signin' ? 'signup' : 'signin');
+    const newMode = mode === 'signin' ? 'signup' : 'signin';
+    setMode(newMode);
     setError('');
     setFormData({ email: '', password: '', name: '', username: '' });
   };
@@ -75,7 +98,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   return (
     <>
-      {/* Overlay */}
+      {/* Overlay with high z-index */}
       <div 
         style={{
           position: 'fixed',
@@ -84,11 +107,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           right: 0,
           bottom: 0,
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          zIndex: 9999,
+          zIndex: 999999, // Very high z-index to ensure it's above everything
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '1rem'
+          padding: '1rem',
+          backdropFilter: 'blur(4px)' // Add blur effect
         }}
         onClick={onClose} // Close when clicking overlay
       >
@@ -101,12 +125,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             width: '100%',
             padding: '1.5rem',
             position: 'relative',
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
             maxHeight: '90vh',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            animation: 'modalSlideIn 0.3s ease-out', // Smooth animation
+            transform: 'scale(1)',
+            opacity: 1
           }}
           onClick={(e) => e.stopPropagation()} // Prevent closing when clicking modal content
         >
+          {/* Add keyframe animation styles */}
+          <style>{`
+            @keyframes modalSlideIn {
+              from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-10px);
+              }
+              to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+              }
+            }
+          `}</style>
+
           {/* Close Button */}
           <button
             onClick={onClose}
@@ -122,7 +163,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               borderRadius: '4px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+              e.currentTarget.style.color = '#6b7280';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#9CA3AF';
             }}
           >
             <X size={24} />
@@ -132,9 +182,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <Gamepad2 style={{ color: '#6B7280' }} size={32} />
-              <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>Game Connect</h1>
+              <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0, color: '#1f2937' }}>Game Connect</h1>
             </div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', margin: '0 0 0.25rem 0' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', margin: '0 0 0.25rem 0', color: '#1f2937' }}>
               {mode === 'signin' ? 'Welcome Back' : 'Join the Community'}
             </h2>
             <p style={{ color: '#6B7280', fontSize: '0.875rem', margin: 0 }}>
@@ -143,6 +193,52 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 : 'Create your UH gaming profile'
               }
             </p>
+          </div>
+
+          {/* Mode Toggle Buttons - Visual indicator of current mode */}
+          <div style={{
+            display: 'flex',
+            backgroundColor: '#f3f4f6',
+            borderRadius: '8px',
+            padding: '0.25rem',
+            marginBottom: '1.5rem'
+          }}>
+            <button
+              onClick={() => setMode('signin')}
+              style={{
+                flex: 1,
+                padding: '0.5rem',
+                borderRadius: '6px',
+                border: 'none',
+                backgroundColor: mode === 'signin' ? 'white' : 'transparent',
+                color: mode === 'signin' ? '#1f2937' : '#6b7280',
+                fontWeight: mode === 'signin' ? '600' : '500',
+                fontSize: '0.875rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: mode === 'signin' ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none'
+              }}
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => setMode('signup')}
+              style={{
+                flex: 1,
+                padding: '0.5rem',
+                borderRadius: '6px',
+                border: 'none',
+                backgroundColor: mode === 'signup' ? 'white' : 'transparent',
+                color: mode === 'signup' ? '#1f2937' : '#6b7280',
+                fontWeight: mode === 'signup' ? '600' : '500',
+                fontSize: '0.875rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: mode === 'signup' ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none'
+              }}
+            >
+              Sign Up
+            </button>
           </div>
 
           {/* Error Message */}
@@ -154,8 +250,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               padding: '0.75rem 1rem',
               borderRadius: '8px',
               marginBottom: '1rem',
-              fontSize: '0.875rem'
+              fontSize: '0.875rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}>
+              <div style={{ color: '#ef4444', fontSize: '1rem' }}>⚠️</div>
               {error}
             </div>
           )}
@@ -185,10 +285,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         borderRadius: '8px',
                         fontSize: '1rem',
                         outline: 'none',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        transition: 'border-color 0.2s ease'
                       }}
                       placeholder="Your full name"
                       required
+                      onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+                      onBlur={(e) => e.currentTarget.style.borderColor = '#D1D5DB'}
                     />
                   </div>
                 </div>
@@ -214,10 +317,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         borderRadius: '8px',
                         fontSize: '1rem',
                         outline: 'none',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        transition: 'border-color 0.2s ease'
                       }}
                       placeholder="Choose a username"
                       required
+                      onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+                      onBlur={(e) => e.currentTarget.style.borderColor = '#D1D5DB'}
                     />
                   </div>
                 </div>
@@ -245,10 +351,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     borderRadius: '8px',
                     fontSize: '1rem',
                     outline: 'none',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    transition: 'border-color 0.2s ease'
                   }}
                   placeholder="your.email@hawaii.edu"
                   required
+                  onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = '#D1D5DB'}
                 />
               </div>
             </div>
@@ -274,11 +383,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     borderRadius: '8px',
                     fontSize: '1rem',
                     outline: 'none',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    transition: 'border-color 0.2s ease'
                   }}
                   placeholder="Enter your password"
                   required
                   minLength={6}
+                  onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = '#D1D5DB'}
                 />
                 <button
                   type="button"
@@ -292,8 +404,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     border: 'none',
                     cursor: 'pointer',
                     color: '#9CA3AF',
-                    padding: '0.25rem'
+                    padding: '0.25rem',
+                    borderRadius: '4px',
+                    transition: 'color 0.2s ease'
                   }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#6b7280'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#9CA3AF'}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -313,15 +429,47 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 fontWeight: '600',
                 border: 'none',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                transition: 'background-color 0.2s',
-                marginBottom: '1.5rem'
+                transition: 'all 0.2s ease',
+                marginBottom: '1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem'
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.backgroundColor = '#1f2937';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.backgroundColor = '#000000';
+                }
               }}
             >
+              {loading && (
+                <div style={{
+                  width: '1rem',
+                  height: '1rem',
+                  border: '2px solid #ffffff40',
+                  borderTop: '2px solid #ffffff',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }} />
+              )}
               {loading ? 'Loading...' : (mode === 'signin' ? 'Sign In' : 'Sign Up')}
             </button>
+
+            {/* Add spinner animation */}
+            <style>{`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}</style>
           </form>
 
-          {/* Switch Mode */}
+          {/* Alternative Switch Mode */}
           <div style={{ textAlign: 'center', paddingTop: '1rem', borderTop: '1px solid #E5E7EB' }}>
             <p style={{ color: '#6B7280', margin: 0, fontSize: '0.875rem' }}>
               {mode === 'signin' ? "Don't have an account?" : "Already have an account?"}
@@ -329,14 +477,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 onClick={switchMode}
                 style={{
                   marginLeft: '0.25rem',
-                  color: '#000000',
+                  color: '#3b82f6',
                   fontWeight: '600',
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
                   textDecoration: 'underline',
-                  fontSize: '0.875rem'
+                  fontSize: '0.875rem',
+                  transition: 'color 0.2s ease'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#1d4ed8'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#3b82f6'}
               >
                 {mode === 'signin' ? 'Sign Up' : 'Sign In'}
               </button>

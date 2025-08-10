@@ -3,7 +3,6 @@
 
 import React, { useState } from 'react';
 import { X, Lock } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -19,7 +18,6 @@ const SessionCreationModel: React.FC<SessionCreationModelProps> = ({
   onClose, 
   onCreateSession 
 }) => {
-  const router = useRouter();
   const { user } = useAuth();
   const [sessionData, setSessionData] = useState({
     title: '',

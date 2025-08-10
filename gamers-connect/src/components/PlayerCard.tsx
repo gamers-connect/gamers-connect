@@ -44,8 +44,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   onUpdate
 }) => {
   const { user } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [requestSent, setRequestSent] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   // --- Normalize data for rendering ---
@@ -76,11 +76,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
 
   const handleConnect = async () => {
     if (!user) return;
-    
     setIsConnecting(true);
-    setRequestSent(false);
-    setStatusMessage(null);
-
     try {
       await api.connections.send(
         user.id,
@@ -93,14 +89,15 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       onUpdate?.();
       setTimeout(() => setStatusMessage(null), 5000);
     } catch (error) {
-      console.error('Failed to send connection request:', error);
-      setRequestSent(false);
+      console.error('Connection request failed:', error);
       setStatusMessage('Failed to send friend request.');
       setTimeout(() => setStatusMessage(null), 5000);
     } finally {
       setIsConnecting(false);
     }
   };
+
+  const isOwnProfile = user?.id === String(player.id);
 
   return (
     <div
@@ -188,13 +185,21 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
           style={{
             marginTop: '0.75rem',
             fontSize: '0.875rem',
-            color: requestSent ? '#22c55e' : '#f87171'
-          }}
-        >
-          {statusMessage}
-        </p>
-      )}
-    </div>
+            color: statusMessage.includes('Failed') ? '#f87171' : '#22c55e'
+          }}>
+            {statusMessage}
+          </p>
+        )}
+      </div>
+
+      <PlayerModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        player={player}
+        onConnect={handleConnect}
+        isConnecting={isConnecting}
+      />
+    </>
   );
 };
 

@@ -136,7 +136,7 @@ class ApiClient {
               success: boolean;
             }>('/auth/verify');
             return response.user;
-          } catch (error) {
+          } catch {
             return this.request<UserProfile>('/auth/profile');
           }
         },

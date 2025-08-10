@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Search } from 'lucide-react';
-import api from '@/lib/api';
 
 interface FilterBarProps {
   games: string[];
