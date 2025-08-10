@@ -47,7 +47,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [requestSent, setRequestSent] = useState(false);
+  const [requestSent, setRequestSent] = useState(false); // Added the missing state
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   // --- Normalize data for rendering ---
@@ -198,7 +198,12 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       <PlayerModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        player={player}
+        player={{
+          ...player,
+          id: String(player.id),
+          games: player.games || [],
+          platforms: player.platforms || [],
+        }}
         onConnect={handleConnect}
         isConnecting={isConnecting}
       />
