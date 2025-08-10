@@ -199,10 +199,17 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         player={{
-          ...player,
           id: String(player.id),
+          name: player.name,
+          email: player.email,
+          avatar: player.avatar,
+          bio: player.bio,
+          discord: player.discord,
+          location: player.location,
           games: player.games || [],
           platform: player.platform || player.platforms?.[0] || 'Unknown',
+          playstyle: player.playstyle || 'Not specified',
+          status: player.status || 'offline',
         }}
         onConnect={handleConnect}
         isConnecting={isConnecting}
