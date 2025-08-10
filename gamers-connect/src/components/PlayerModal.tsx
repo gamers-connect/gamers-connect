@@ -11,9 +11,15 @@ interface PlayerModalProps {
   isConnecting: boolean;
 }
 
-const PlayerModal: React.FC<PlayerModalProps> = ({ player, isOpen, onClose, onConnect, isConnecting }) => {
+const PlayerModal: React.FC<PlayerModalProps> = ({ 
+  player, 
+  isOpen, 
+  onClose, 
+  onConnect, 
+  isConnecting 
+}) => {
   if (!isOpen) return null;
-
+  
   return (
     <div style={{
       position: 'fixed',
@@ -48,16 +54,24 @@ const PlayerModal: React.FC<PlayerModalProps> = ({ player, isOpen, onClose, onCo
         >
           ×
         </button>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{player.name}</h2>
-        <p style={{ color: '#9ca3af', marginBottom: '1rem' }}>{player.status}</p>
-
-        <p><strong>Bio:</strong> {player.bio || 'N/A'}</p>        
-        <p><strong>Discord:</strong> {player.discord || 'N/A'}</p>
-        <p><strong>Location:</strong> {player.location}</p>
-        <p><strong>Games:</strong> {player.games?.join(', ')}</p>
-        <p><strong>Platform:</strong> {player.platform}</p>
-        <p><strong>Playstyle:</strong> {player.playstyle}</p>
-
+        
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+          {player.name}
+        </h2>
+        
+        <p style={{ color: '#9ca3af', marginBottom: '1rem' }}>
+          {player.status}
+        </p>
+        
+        <div style={{ marginBottom: '1rem' }}>
+          <p><strong>Bio:</strong> {player.bio || 'N/A'}</p>        
+          <p><strong>Discord:</strong> {player.discord || 'N/A'}</p>
+          <p><strong>Location:</strong> {player.location || 'N/A'}</p>
+          <p><strong>Games:</strong> {player.games?.join(', ') || 'N/A'}</p>
+          <p><strong>Platform:</strong> {player.platform || 'N/A'}</p>
+          <p><strong>Playstyle:</strong> {player.playstyle || 'N/A'}</p>
+        </div>
+        
         <button 
           onClick={onConnect}
           disabled={isConnecting}
@@ -82,4 +96,3 @@ const PlayerModal: React.FC<PlayerModalProps> = ({ player, isOpen, onClose, onCo
 };
 
 export default PlayerModal;
-
