@@ -244,7 +244,7 @@ test.describe('Application Pages and Forms', () => {
       // Navigate to login manually
       await page.goto(BASE_URL);
       await page.waitForLoadState('networkidle');
-      const loginButton = page.getByRole('navigation').getByRole('button', { name: 'Login' });
+      const loginButton = page.getByRole('button', { name: 'Login' });
       await expect(loginButton).toBeVisible({ timeout: 10000 });
       await loginButton.click();
     }
