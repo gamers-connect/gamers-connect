@@ -99,8 +99,6 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
     }
   };
 
-  const isOwnProfile = user?.id === String(player.id);
-
   return (
     <>
       <div
@@ -201,15 +199,14 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
         player={{
           id: String(player.id),
           name: player.name,
-          email: player.email,
-          avatar: player.avatar,
-          bio: player.bio,
-          discord: player.discord,
-          location: player.location,
+          bio: player.bio || undefined,
+          discord: player.discord || undefined,
+          location: player.location || 'Not specified',
           games: player.games || [],
           platform: player.platform || player.platforms?.[0] || 'Unknown',
           playstyle: player.playstyle || 'Not specified',
-          status: player.status || 'offline',
+          status: toLowerStatus(player.status),
+          rating: rating || 0,
         }}
         onConnect={handleConnect}
         isConnecting={isConnecting}
