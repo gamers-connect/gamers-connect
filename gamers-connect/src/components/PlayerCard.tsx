@@ -205,7 +205,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
           avatar: player.avatar || undefined,
           bio: player.bio || undefined,
           discord: player.discord || undefined,
-          location: player.location || undefined,
+          location: player.location || 'Not specified',
           games: player.games || [],
           platform: player.platform || player.platforms?.[0] || 'Unknown',
           playstyle: player.playstyle || 'Not specified',
