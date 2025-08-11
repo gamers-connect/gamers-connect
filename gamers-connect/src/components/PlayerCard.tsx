@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '../lib/api';
-import PlayerModal from './PlayerModal'; // Import your existing modal
+import PlayerModal from './PlayerModal';
 
 type LowerStatus = 'online' | 'away' | 'offline';
 
@@ -47,7 +47,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [requestSent, setRequestSent] = useState(false); // Added the missing state
+  const [requestSent, setRequestSent] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   // --- Normalize data for rendering ---
@@ -98,8 +98,6 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       setIsConnecting(false);
     }
   };
-
-  const isOwnProfile = user?.id === String(player.id);
 
   return (
     <>
@@ -201,8 +199,6 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
         player={{
           id: String(player.id),
           name: player.name,
-          email: player.email,
-          avatar: player.avatar || undefined,
           bio: player.bio || undefined,
           discord: player.discord || undefined,
           location: player.location || 'Not specified',
@@ -210,6 +206,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
           platform: player.platform || player.platforms?.[0] || 'Unknown',
           playstyle: player.playstyle || 'Not specified',
           status: toLowerStatus(player.status),
+          rating: rating || 0,
         }}
         onConnect={handleConnect}
         isConnecting={isConnecting}

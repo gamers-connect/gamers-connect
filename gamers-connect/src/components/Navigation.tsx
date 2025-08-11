@@ -36,7 +36,6 @@ const normalizeStatus = (s: Status | null): Status =>
 const Navigation: React.FC<NavigationProps> = ({
   user,
   currentPage,
-  onToggleNotifications,
   onLogout
 }) => {
   const router = useRouter();
