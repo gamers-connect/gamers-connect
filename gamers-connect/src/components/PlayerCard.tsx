@@ -209,7 +209,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
           games: player.games || [],
           platform: player.platform || player.platforms?.[0] || 'Unknown',
           playstyle: player.playstyle || 'Not specified',
-          status: player.status || 'offline',
+          status: toLowerStatus(player.status),
         }}
         onConnect={handleConnect}
         isConnecting={isConnecting}
